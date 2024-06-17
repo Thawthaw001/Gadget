@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "677979057198",
+    "project_id": "thaw-1045d",
+    "storage_bucket": "thaw-1045d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677979057198:android:1ea812b45d94930129c3bf",
+        "android_client_info": {
+          "package_name": "com.example.thaw"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "677979057198-5pscctjfr32hb20rkn7c3p3qpbr2jmlr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.thaw",
+            "certificate_hash": "56b37e886f0a69d69ae198514d591b7e97b794df"
+          }
+        },
+        {
+          "client_id": "677979057198-73cipji8et83hplgjlebmc9h1ids1vbh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ7rltgjEtSOeYpNJYV_2PSf_Sm5cwDQs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677979057198-73cipji8et83hplgjlebmc9h1ids1vbh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
