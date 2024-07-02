@@ -1,33 +1,29 @@
-// ignore_for_file: depend_on_referenced_packages
-
-import 'dart:math';
+// ignore_for_file: avoid_print
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:thaw/auth/auth_firestore.dart';
 
-class AuthService {
-  final _auth = FirebaseAuth.instance;
+class Auth {
+  static final _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  Future<User?> createUserWithEmailAndPassword(
-      String username, String email, String password) async {
-    try {
-      final cred = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      print('cred $cred');
-      return cred.user;
-    } catch (e) {
-      // ignore: avoid_print
-      print('Something worng $e');
-    }
-    return null;
-  }
+  User? get currenUser => _firebaseAuth.currentUser;
 
-  Future<void> sendPasswordResetLink(String email) async {
+  Stream<User?> get authStageChanges => _firebaseAuth.authStateChanges();
+
+  // ignore: body_might_complete_normally_nullable
+  Future<User?> signInWithEmailAndPassword(
+      {required String email, required String password}) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
     } catch (e) {
-      print(e.toString());
+      print('Sin in error is $e');
     }
   }
 
@@ -35,34 +31,96 @@ class AuthService {
     try {
       await _googleSignIn.signOut();
 
-      final googleUser = await GoogleSignIn().signIn();
-      final googleAuth = await googleUser?.authentication;
+      // Set locale before starting the sign-in process
+      _auth.setLanguageCode('en'); // Set this to the desired locale
+
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        // If the user cancels the sign-in process
+        print("Google sign-in canceled by user");
+        return null;
+      }
+
+      final googleAuth = await googleUser.authentication;
       final cred = GoogleAuthProvider.credential(
-          idToken: googleAuth?.idToken, accessToken: googleAuth?.accessToken);
-      return await _auth.signInWithCredential(cred);
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(cred);
+
+      final User? user = userCredential.user;
+      if (user != null) {
+        await AuthStore().addUserToFirestore(
+          userId: user.uid,
+          name: user.displayName ?? 'No Name',
+          email: user.email ?? 'No Email',
+        );
+      }
+
+      return userCredential;
     } catch (e) {
       print(e.toString());
+      return null;
     }
-    return null;
   }
 
-  Future<User?> loginUserWithEmailAndPassword(
-      String email, String password) async {
+  Future<void> createUserWithEmailAndPassword({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
     try {
-      final cred = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-      return cred.user;
-    } catch (e) {
-      print('Something wrong $e');
+      await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (currenUser != null) {
+        AuthStore().addUserToFirestore(
+          userId: currenUser!.uid,
+          name: name,
+          email: email,
+        );
+      } else {
+        print('currenUser$currenUser');
+      }
+    } catch (error) {
+      print("Sign up error $error");
+      rethrow;
     }
-    return null;
   }
 
-  Future<void> signout() async {
+  Future<String> getUserName() async {
     try {
-      await _auth.signOut();
+      final CollectionReference users =
+          FirebaseFirestore.instance.collection('users');
+
+      final String uid = _firebaseAuth.currentUser!.uid;
+
+      final result = await users.doc(uid).get();
+
+      final Map<String, dynamic>? data = result.data() as Map<String, dynamic>?;
+
+      if (data != null && data.containsKey('name')) {
+        return data['name'].toString();
+      } else {
+        throw Exception("Display name not found in Firestore data");
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+     await FirebaseAuth.instance.signOut();
+      print("Signout");
+
+      //  await GoogleSignIn().signOut();
     } catch (e) {
-      log("Something went wrong" as num);
+      print("Signout error $e");
     }
   }
 }

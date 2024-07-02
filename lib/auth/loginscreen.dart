@@ -1,14 +1,15 @@
+// ignore_for_file: unused_import, unused_local_variable, avoid_print
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:thaw/Pages/Forgotpassword.dart';
-import 'package:thaw/Pages/Homescreen.dart';
 // ignore: depend_on_referenced_packages
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:thaw/Pages/homePage.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/register.dart';
 import 'package:thaw/utils/decoration.dart';
 import 'package:thaw/utils/formfield.dart';
-
-import '../utils/validation.dart';
 
 class Login extends StatefulWidget {
   // ignore: use_super_parameters
@@ -19,10 +20,9 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final AuthService _auth = AuthService();
+  final Auth _auth = Auth();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String _passwordStrength = '';
   bool _isObscured = true;
 
   @override
@@ -33,14 +33,6 @@ class _LoginState extends State<Login> {
   }
 
   // ignore: non_constant_identifier_names
-  void _checkPasswordStrength(String Password) {
-    setState(() {
-      _passwordStrength = evaluatePasswordStrength(Password);
-    });
-  }
-
-
-
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -58,23 +50,35 @@ class _LoginState extends State<Login> {
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
 
-  _login() async {
-    final user = await _auth.loginUserWithEmailAndPassword(
-        _emailController.text, _passwordController.text);
+  Future<void> _login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    try {
+      print('Email $email & Password $password');
 
-    if (user != null) {
-      // ignore: avoid_print
-      print("User Logged In");
-      // ignore: use_build_context_synchronously
-      goToHome(context);
+      final user =
+          _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      print("USer value is ${user.then((user) {
+     
+        user?.uid;
+      })}");
+
+      if (user != null) {
+        goToHome(context);
+      }
+    } catch (e) {
+      print('Errror is $e');
     }
   }
 
   _loginWithGoogle() async {
-    final userCred = await _auth.loginWithGoogle();
-    if (userCred != null) {
+    final UserCredential? userCredential = await _auth.loginWithGoogle();
+    if (userCredential != null) {
       // ignore: use_build_context_synchronously
       goToHome(context);
+    } else {
+      print("Google sign-in was not successful. UserCredential is null.");
     }
   }
 
@@ -88,8 +92,8 @@ class _LoginState extends State<Login> {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: SizedBox(
-                width:600,
-                height: MediaQuery.of(context).size.height /1.5,
+                width: 600,
+                height: MediaQuery.of(context).size.height / 1.8,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -146,7 +150,6 @@ class _LoginState extends State<Login> {
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _isObscured,
-                              onChanged: _checkPasswordStrength,
                               decoration: InputDecoration(
                                   labelText: "Password",
                                   labelStyle: formfieldStyle,
@@ -171,36 +174,16 @@ class _LoginState extends State<Login> {
                                             : Colors.black,
                                       ))),
                             ),
-                            const SizedBox(height: 20),
-                            Text(
-                              'Password Strength $_passwordStrength',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: getStrengthColor(_passwordStrength),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            LinearProgressIndicator(
-                              value: _passwordStrength == 'Weak'
-                                  ? 0.3
-                                  : _passwordStrength == 'Medium'
-                                      ? 0.6
-                                      : _passwordStrength == 'Strong'
-                                          ? 1.0
-                                          : 0.0,
-                              color: getStrengthColor(_passwordStrength),
-                              backgroundColor: Colors.black,
-                            ),
                             const SizedBox(height: 10),
                             Align(
                               alignment: Alignment.bottomRight,
                               child: InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const ForgotPassword()));
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) =>
+                                  //             const ForgotPassword()));
                                 },
                                 child: Text('Forget Password',
                                     style: formfieldStyle),

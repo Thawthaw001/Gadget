@@ -1,22 +1,34 @@
 // ignore: depend_on_referenced_packages
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:thaw/Pages/Forgotpassword.dart';
-import 'package:thaw/Pages/Homescreen.dart';
+import 'package:get/get.dart';
+import 'package:thaw/Pages/homePage.dart';
+import 'package:thaw/Services/firebase_storage_service.dart';
+import 'package:thaw/auth/auth_Splashscreen.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/auth/register.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  // Initialize Firebase App Check
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+  );
 
+  Get.lazyPut(() => FirebaseStorageService());
+ 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
+    theme:ThemeData(
+      primarySwatch: Colors.blueGrey
+    ),
+    home:SplashScreen(),
     routes: {
-      "/": (context) => const Login(),
+      "/login": (context) => const Login(),
       "/register": (context) => const Register(),
       "/home": (context) => const HomeScreen(),
-      "/forgotpassword":(context) => const ForgotPassword()
+      // "/forgotpassword": (context) => const ForgotPassword(),
     },
   ));
 }

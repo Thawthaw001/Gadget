@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:thaw/Pages/Homescreen.dart';
+import 'package:thaw/Pages/homePage.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/decoration.dart';
@@ -15,7 +15,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final _auth = AuthService();
+  final _auth = Auth();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -62,18 +62,23 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  void _signUp() async {
-    final user = await _auth.createUserWithEmailAndPassword(
-      _usernameController.text,
-      _emailController.text,
-      _passwordController.text,
-    );
-    if (user != null) {
-      // ignore: avoid_print
-      print("User Created Successfully");
-      // ignore: use_build_context_synchronously
-      goToHome(context);
-    }
+ void _signUp() async {
+    final name = _usernameController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    
+    final user = await _auth.createUserWithEmailAndPassword
+    
+    ( name:name,email:  email, password: password);
+
+     goToHome(context);
+    // if (user != null) {
+    //   // ignore: avoid_print
+    //   print("User Created Successfully");
+    //   // ignore: use_build_context_synchronously
+    //   goToHome(context);
+    // }
+    
   }
 
   @override
@@ -257,7 +262,7 @@ class _RegisterState extends State<Register> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height:10),
+                            const SizedBox(height: 10),
                             Row(
                               children: [
                                 Icon(
