@@ -1,9 +1,11 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:thaw/Pages/homePage.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
+import 'package:thaw/utils/PasswordStrength.dart';
 import 'package:thaw/utils/decoration.dart';
-import 'package:thaw/utils/validation.dart';
 
 import '../utils/formfield.dart';
 
@@ -62,23 +64,21 @@ class _RegisterState extends State<Register> {
     );
   }
 
- void _signUp() async {
+  void _signUp() async {
     final name = _usernameController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
-    
-    final user = await _auth.createUserWithEmailAndPassword
-    
-    ( name:name,email:  email, password: password);
 
-     goToHome(context);
+    final user = await _auth.createUserWithEmailAndPassword(
+        name: name, email: email, password: password,role:'user');
+
+    goToHome(context);
     // if (user != null) {
     //   // ignore: avoid_print
     //   print("User Created Successfully");
     //   // ignore: use_build_context_synchronously
     //   goToHome(context);
     // }
-    
   }
 
   @override

@@ -2,14 +2,18 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:thaw/Admin/AdminPanel.dart';
 import 'package:thaw/Pages/Forgotpassword.dart';
 // ignore: depend_on_referenced_packages
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:thaw/Pages/homePage.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/register.dart';
+import 'package:thaw/models/UserData.dart';
+import 'package:thaw/models/userData.dart';
 import 'package:thaw/utils/decoration.dart';
 import 'package:thaw/utils/formfield.dart';
+import 'package:thaw/utils/FormValidation.dart';
 
 class Login extends StatefulWidget {
   // ignore: use_super_parameters
@@ -20,6 +24,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final Auth _auth = Auth();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -40,12 +45,17 @@ class _LoginState extends State<Login> {
     });
   }
 
+  goToAdmin() => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AdminPanel()),
+      );
+
   goToSignup(BuildContext context) => Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const Register()),
       );
 
-  goToHome(BuildContext context) => Navigator.push(
+  goToHome() => Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
@@ -54,21 +64,31 @@ class _LoginState extends State<Login> {
     final email = _emailController.text;
     final password = _passwordController.text;
     try {
-      print('Email $email & Password $password');
+      // print('Email $email & Password $password');
 
-      final user =
-          _auth.signInWithEmailAndPassword(email: email, password: password);
+      // Sign in the user with email and password
+      User? userCredential = await _auth
+          .signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      )
+          .then((_) async {
+        var loginUser =
+            await Auth().getUserRole(_emailController.text.toString());
 
-      print("USer value is ${user.then((user) {
-     
-        user?.uid;
-      })}");
-
-      if (user != null) {
-        goToHome(context);
-      }
+        if (loginUser != null) {
+          var userRole = loginUser.role;
+          if (userRole == "admin") {
+            print("User role value is $userRole");
+            goToAdmin();
+          } else {
+            goToHome();
+          }
+        }
+        return null;
+      });
     } catch (e) {
-      print('Errror is $e');
+      print('Error: $e');
     }
   }
 
@@ -76,7 +96,7 @@ class _LoginState extends State<Login> {
     final UserCredential? userCredential = await _auth.loginWithGoogle();
     if (userCredential != null) {
       // ignore: use_build_context_synchronously
-      goToHome(context);
+      goToHome();
     } else {
       print("Google sign-in was not successful. UserCredential is null.");
     }
@@ -95,42 +115,51 @@ class _LoginState extends State<Login> {
                 width: 600,
                 height: MediaQuery.of(context).size.height / 1.8,
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: 10),
-                            child: Align(
-                              alignment: Alignment.topLeft,
-                              child: Text("Login",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 20,
-                                      fontFamily: "English",
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 130),
-                              child: Image.asset(
-                                'assets/images/Generate_a_logo_75f1e5eb-f843-4e71-a763-daf800aa47e0-removebg-preview.png', // Replace with your logo URL
-                                width: 70,
-                                height: 50,
+                  child: Form(
+                    key: _formkey,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text("Login",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                        fontFamily: "English",
+                                        fontWeight: FontWeight.bold)),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Form(
-                        child: Column(
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 130),
+                                child: Image.asset(
+                                  'assets/images/Generate_a_logo_75f1e5eb-f843-4e71-a763-daf800aa47e0-removebg-preview.png', // Replace with your logo URL
+                                  width: 70,
+                                  height: 50,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Column(
                           children: [
                             TextFormField(
                               controller: _emailController,
+                              validator: (email) {
+                                if (email!.isEmpty) {
+                                  return 'Please enter an email address';
+                                } else if (!FormValidator.isEmailValid(email)) {
+                                  return 'Please enter a valid email address';
+                                }
+                                return null;
+                              },
                               decoration: InputDecoration(
                                 labelText: "Email",
                                 labelStyle: formfieldStyle,
@@ -203,7 +232,12 @@ class _LoginState extends State<Login> {
                             Align(
                               alignment: Alignment.center,
                               child: ElevatedButton.icon(
-                                onPressed: _login,
+                                onPressed: () {
+                                  if (_formkey.currentState!.validate()) {
+                                    print("HEeeehhe ");
+                                    _login();
+                                  }
+                                },
                                 style: ElevatedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(
@@ -228,30 +262,30 @@ class _LoginState extends State<Login> {
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 13),
-                      Align(
-                        alignment: Alignment.center,
-                        child: ElevatedButton.icon(
-                            onPressed: _loginWithGoogle,
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    30.0), // Makes it rounded
+                        const SizedBox(height: 13),
+                        Align(
+                          alignment: Alignment.center,
+                          child: ElevatedButton.icon(
+                              onPressed: _loginWithGoogle,
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      30.0), // Makes it rounded
+                                ),
+                                backgroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 20), // Button background color
                               ),
-                              backgroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                  horizontal: 20), // Button background color
-                            ),
-                            icon: const FaIcon(
-                              FontAwesomeIcons.google,
-                              size: 16,
-                              color: Colors.lightBlueAccent,
-                            ),
-                            label: Text('Google', style: formfieldStyle)),
-                      ),
-                    ],
+                              icon: const FaIcon(
+                                FontAwesomeIcons.google,
+                                size: 16,
+                                color: Colors.lightBlueAccent,
+                              ),
+                              label: Text('Google', style: formfieldStyle)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -1,11 +1,14 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unused_field
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:thaw/auth/auth_firestore.dart';
+import 'package:thaw/models/userData.dart';
 
 class Auth {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   static final _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -66,11 +69,11 @@ class Auth {
     }
   }
 
-  Future<void> createUserWithEmailAndPassword({
-    required String name,
-    required String email,
-    required String password,
-  }) async {
+  Future<void> createUserWithEmailAndPassword(
+      {required String name,
+      required String email,
+      required String password,
+      required String role}) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -79,10 +82,7 @@ class Auth {
 
       if (currenUser != null) {
         AuthStore().addUserToFirestore(
-          userId: currenUser!.uid,
-          name: name,
-          email: email,
-        );
+            userId: currenUser!.uid, name: name, email: email, role: role);
       } else {
         print('currenUser$currenUser');
       }
@@ -115,12 +115,33 @@ class Auth {
 
   Future<void> signOut() async {
     try {
-     await FirebaseAuth.instance.signOut();
+      await FirebaseAuth.instance.signOut();
       print("Signout");
 
       //  await GoogleSignIn().signOut();
     } catch (e) {
       print("Signout error $e");
+    }
+  }
+
+  Future<UserData?> getUserRole(String userEmail) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('users')
+          .where('email', isEqualTo:userEmail)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        Map<String, dynamic> data = snapshot.docs[0].data();
+        return UserData(email:data['email'], name:'', role:data['role']);
+      } else {
+        print('User not found in Firestore');
+        return null;
+      }
+    } catch (error) {
+      print('Error retrieving user data: $error');
+      return null;
     }
   }
 }
