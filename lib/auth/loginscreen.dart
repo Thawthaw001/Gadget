@@ -2,7 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:thaw/Admin/AdminPanel.dart';
+import 'package:thaw/Admin/admin_panel.dart';
 import 'package:thaw/Pages/Forgotpassword.dart';
 // ignore: depend_on_referenced_packages
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
