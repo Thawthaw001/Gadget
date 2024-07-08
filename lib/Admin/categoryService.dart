@@ -7,19 +7,22 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:thaw/Admin/Model/category_model.dart';
 
 class CatService {
- static final FirebaseStorage _storage = FirebaseStorage.instance;
- static final CollectionReference categoryCollection =
+  static final FirebaseStorage _storage = FirebaseStorage.instance;
+  static final CollectionReference categoryCollection =
       FirebaseFirestore.instance.collection('categories');
 
- static Future<void> addCategory(FourCategory category) async {
+  static Future<void> addCategory(FourCategory category) async {
     await categoryCollection.add({
       'name': category.name,
       'imageUrl': category.imageUrl,
     });
   }
- static Future<String>uploadImageToStorage(File imageFile,String fileName) async {
+
+  static Future<String> uploadImageToStorage(
+      File imageFile, String fileName) async {
     try {
-      final Reference storageRef = _storage.ref().child('images').child(fileName);
+      final Reference storageRef =
+          _storage.ref().child('images').child(fileName);
 
       // Upload the file to Firebase Storage
       await storageRef.putFile(imageFile);

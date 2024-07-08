@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:thaw/auth/auth_firestore.dart';
 import 'package:thaw/models/userData.dart';
+import 'package:thaw/utils/sharepreferences.dart';
 
 class Auth {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -117,6 +118,7 @@ class Auth {
     try {
       await FirebaseAuth.instance.signOut();
       print("Signout");
+      SharePreferenceService.removeUserRole();
 
       //  await GoogleSignIn().signOut();
     } catch (e) {

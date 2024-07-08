@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:thaw/Pages/homePage.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
+import 'package:thaw/utils/form_validation.dart';
 import 'package:thaw/utils/PasswordStrength.dart';
+import 'package:thaw/utils/dynamic_textform.dart';
 import 'package:thaw/utils/decoration.dart';
-
-import '../utils/formfield.dart';
+import 'package:thaw/utils/formfield.dart';
+import 'package:thaw/utils/linear_progress_indicator.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -17,7 +19,8 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final _auth = Auth();
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -26,6 +29,10 @@ class _RegisterState extends State<Register> {
   bool _hasUppercase = false;
   bool _hasNumber = false;
   bool _hasMinLength = false;
+
+  final FocusNode _nameFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
 
   @override
   void dispose() {
@@ -50,14 +57,14 @@ class _RegisterState extends State<Register> {
     });
   }
 
-  void goToLogin(BuildContext context) {
+  void goToLogin() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Login()),
     );
   }
 
-  void goToHome(BuildContext context) {
+  void goToHome() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -69,28 +76,26 @@ class _RegisterState extends State<Register> {
     final email = _emailController.text;
     final password = _passwordController.text;
 
-    final user = await _auth.createUserWithEmailAndPassword(
-        name: name, email: email, password: password,role:'user');
+    final user = await Auth().createUserWithEmailAndPassword(
+        name: name, email: email, password: password, role: 'user');
 
-    goToHome(context);
-    // if (user != null) {
-    //   // ignore: avoid_print
-    //   print("User Created Successfully");
-    //   // ignore: use_build_context_synchronously
-    //   goToHome(context);
-    // }
+    goToHome();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          leading: IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const Login()));
-              },
-              icon: const Icon(Icons.arrow_back_ios))),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Login()),
+            );
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
+      ),
       body: Container(
         decoration: getDecoration(),
         child: SafeArea(
@@ -106,18 +111,11 @@ class _RegisterState extends State<Register> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: 10),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
                             child: Align(
                               alignment: Alignment.topLeft,
-                              child: Text(
-                                "Register",
-                                style: TextStyle(
-                                  fontFamily: "English",
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              child: Text("Register", style: formfieldStyle),
                             ),
                           ),
                           Align(
@@ -135,71 +133,50 @@ class _RegisterState extends State<Register> {
                       ),
                       const SizedBox(height: 20),
                       Form(
+                        key: _formKey,
                         child: Column(
                           children: [
-                            TextFormField(
+                            GadgeTextFormField(
                               controller: _usernameController,
-                              decoration: InputDecoration(
-                                labelText: "Username",
-                                labelStyle: formfieldStyle,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide:
-                                      const BorderSide(color: Colors.black),
-                                ),
-                              ),
+                              focusNode: _nameFocus,
+                              hintText: 'User Name',
+                              keyboardType: TextInputType.name,
+                              validator: FormValidator.validateName,
                             ),
                             const SizedBox(height: 20),
-                            TextFormField(
+                            GadgeTextFormField(
                               controller: _emailController,
-                              decoration: InputDecoration(
-                                labelText: "Email",
-                                labelStyle: formfieldStyle,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide:
-                                      const BorderSide(color: Colors.grey),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide:
-                                      const BorderSide(color: Colors.black),
-                                ),
-                              ),
+                              focusNode: _emailFocus,
+                              hintText: 'Email',
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) {
+                                if (!FormValidator.isEmailValid(value!)) {
+                                  return 'Invalid email';
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 20),
-                            TextFormField(
+                            GadgeTextFormField(
                               controller: _passwordController,
+                              focusNode: _passwordFocus,
+                              hintText: 'Password',
+                              keyboardType: TextInputType.text,
                               obscureText: _isObscured,
-                              onChanged: _checkPasswordStrength,
-                              decoration: InputDecoration(
-                                  labelText: "Password",
-                                  labelStyle: formfieldStyle,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    borderSide:
-                                        const BorderSide(color: Colors.grey),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    borderSide:
-                                        const BorderSide(color: Colors.black),
-                                  ),
-                                  suffixIcon: IconButton(
-                                      onPressed: _togglePasswordVisibility,
-                                      icon: Icon(
-                                        _isObscured
-                                            ? Icons.visibility_off
-                                            : Icons.visibility,
-                                        color: _isObscured
-                                            ? Colors.grey
-                                            : Colors.black,
-                                      ))),
+                              validator: (String? value) {
+                                _checkPasswordStrength(value ?? '');
+                                return null;
+                              },
+                              suffixIcon: IconButton(
+                                onPressed: _togglePasswordVisibility,
+                                icon: Icon(
+                                  _isObscured
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color:
+                                      _isObscured ? Colors.grey : Colors.black,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 10),
                             Text(
@@ -211,17 +188,8 @@ class _RegisterState extends State<Register> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            LinearProgressIndicator(
-                              value: _passwordStrength == 'Weak'
-                                  ? 0.3
-                                  : _passwordStrength == 'Medium'
-                                      ? 0.6
-                                      : _passwordStrength == 'Strong'
-                                          ? 1.0
-                                          : 0.0,
-                              color: getStrengthColor(_passwordStrength),
-                              backgroundColor: Colors.grey[300],
-                            ),
+                            const Indicator(),
+                            const SizedBox(height: 10),
                             Text('Password must include:',
                                 style: formfieldStyle),
                             const SizedBox(height: 10),
@@ -284,7 +252,11 @@ class _RegisterState extends State<Register> {
                             ),
                             const SizedBox(height: 5),
                             ElevatedButton(
-                              onPressed: _signUp,
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  _signUp();
+                                }
+                              },
                               child: Text('Register', style: formfieldStyle),
                             ),
                           ],
@@ -300,4 +272,6 @@ class _RegisterState extends State<Register> {
       ),
     );
   }
+
+
 }

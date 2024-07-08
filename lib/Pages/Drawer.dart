@@ -1,18 +1,20 @@
-// ignore_for_file: prefer_const_declarations, use_super_parameters, use_build_context_synchronously, use_key_in_widget_constructors, avoid_print
+// ignore_for_file: avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/formfield.dart';
 
 class DrawerFb1 extends StatefulWidget {
+  const DrawerFb1({super.key});
+
   @override
-  _DrawerFb1State createState() => _DrawerFb1State();
+  DrawerFb1State createState() => DrawerFb1State();
 }
 
-class _DrawerFb1State extends State<DrawerFb1> {
-  final FirebaseAuth _authService = FirebaseAuth.instance;
+class DrawerFb1State extends State<DrawerFb1> {
   Map<String, dynamic>? _userData;
   final TextEditingController searchController = TextEditingController();
 
@@ -24,7 +26,7 @@ class _DrawerFb1State extends State<DrawerFb1> {
 
   Future<void> _fetchUserData() async {
     try {
-      User? currentUser = _authService.currentUser;
+      User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
             await FirebaseFirestore.instance
@@ -47,16 +49,16 @@ class _DrawerFb1State extends State<DrawerFb1> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Drawer(
       child: Container(
-        color: const Color.fromARGB(255, 20, 247, 247),
+        color: Colors.white,
         child: ListView(
           children: [
             if (_userData != null)
               UserAccountsDrawerHeader(
                 decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 20, 247, 247),
+                  color: Colors.white,
                 ),
                 accountName: Text(
                   _userData!['name'] ?? 'User Name',
@@ -69,14 +71,7 @@ class _DrawerFb1State extends State<DrawerFb1> {
               ),
             ListTile(
               leading: const Icon(Icons.search, color: Colors.black),
-              title: const Text(
-                'Search',
-                style: TextStyle(
-                  fontFamily: "English",
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: Text('Search', style: formfieldStyle),
               onTap: () {},
             ),
             ListTile(
@@ -84,14 +79,7 @@ class _DrawerFb1State extends State<DrawerFb1> {
                 Icons.settings,
                 color: Colors.black,
               ),
-              title: const Text(
-                'Settings',
-                style: TextStyle(
-                  fontFamily: "English",
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: Text('Settings', style: formfieldStyle),
               onTap: () {},
             ),
             ListTile(
@@ -99,16 +87,9 @@ class _DrawerFb1State extends State<DrawerFb1> {
                 Icons.logout,
                 color: Colors.black,
               ),
-              title: const Text(
-                'Logout',
-                style: TextStyle(
-                  fontFamily: "English",
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: Text('Logout', style: formfieldStyle),
               onTap: () async {
-                await _authService.signOut();
+                await Auth().signOut();
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const Login()),
@@ -135,19 +116,19 @@ class _DrawerFb1State extends State<DrawerFb1> {
 }
 
 class SearchFieldDrawer extends StatelessWidget {
-  const SearchFieldDrawer({Key? key}) : super(key: key);
+  const SearchFieldDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final color = const Color.fromARGB(255, 27, 234, 234);
+    const color = Color.fromARGB(255, 27, 234, 234);
 
     return TextField(
-      style: TextStyle(color: color, fontSize: 14),
+      style: const TextStyle(color: color, fontSize: 14),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         hintText: 'Search',
-        hintStyle: TextStyle(color: color),
-        prefixIcon: Icon(
+        hintStyle: const TextStyle(color: color),
+        prefixIcon: const Icon(
           Icons.search,
           color: color,
           size: 20,
@@ -166,4 +147,3 @@ class SearchFieldDrawer extends StatelessWidget {
     );
   }
 }
-

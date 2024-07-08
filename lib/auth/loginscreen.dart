@@ -1,11 +1,12 @@
 // ignore_for_file: unused_import, unused_local_variable, avoid_print
 
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:thaw/Admin/admin_panel.dart';
 import 'package:thaw/Pages/Forgotpassword.dart';
-// ignore: depend_on_referenced_packages
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:thaw/Pages/homePage.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/register.dart';
@@ -13,11 +14,11 @@ import 'package:thaw/models/UserData.dart';
 import 'package:thaw/models/userData.dart';
 import 'package:thaw/utils/decoration.dart';
 import 'package:thaw/utils/formfield.dart';
-import 'package:thaw/utils/FormValidation.dart';
+import 'package:thaw/utils/form_validation.dart';
+import 'package:thaw/utils/sharepreferences.dart';
 
 class Login extends StatefulWidget {
-  // ignore: use_super_parameters
-  const Login({Key? key}) : super(key: key);
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -25,7 +26,6 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
-  final Auth _auth = Auth();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscured = true;
@@ -47,7 +47,7 @@ class _LoginState extends State<Login> {
 
   goToAdmin() => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AdminPanel()),
+        MaterialPageRoute(builder: (context) => const AdminPanel()),
       );
 
   goToSignup(BuildContext context) => Navigator.push(
@@ -61,25 +61,26 @@ class _LoginState extends State<Login> {
       );
 
   Future<void> _login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
     try {
-      // print('Email $email & Password $password');
-
-      // Sign in the user with email and password
-      User? userCredential = await _auth
+       print(
+            "Login User name is ${_emailController.text} and pass is ${_passwordController.text}");
+      await Auth()
           .signInWithEmailAndPassword(
-        email: email,
-        password: password,
+        email: _emailController.text,
+        password: _passwordController.text,
       )
           .then((_) async {
+       print("Reach here");
         var loginUser =
             await Auth().getUserRole(_emailController.text.toString());
-
+        print("Login User is $loginUser ");
         if (loginUser != null) {
           var userRole = loginUser.role;
+
+          await SharePreferenceService.saveUserRole(userRole);
+
+          print("User role is $userRole");
           if (userRole == "admin") {
-            print("User role value is $userRole");
             goToAdmin();
           } else {
             goToHome();
@@ -93,9 +94,8 @@ class _LoginState extends State<Login> {
   }
 
   _loginWithGoogle() async {
-    final UserCredential? userCredential = await _auth.loginWithGoogle();
+    final UserCredential? userCredential = await Auth().loginWithGoogle();
     if (userCredential != null) {
-      // ignore: use_build_context_synchronously
       goToHome();
     } else {
       print("Google sign-in was not successful. UserCredential is null.");
@@ -152,14 +152,6 @@ class _LoginState extends State<Login> {
                           children: [
                             TextFormField(
                               controller: _emailController,
-                              validator: (email) {
-                                if (email!.isEmpty) {
-                                  return 'Please enter an email address';
-                                } else if (!FormValidator.isEmailValid(email)) {
-                                  return 'Please enter a valid email address';
-                                }
-                                return null;
-                              },
                               decoration: InputDecoration(
                                 labelText: "Email",
                                 labelStyle: formfieldStyle,
@@ -278,7 +270,7 @@ class _LoginState extends State<Login> {
                                     horizontal: 20), // Button background color
                               ),
                               icon: const FaIcon(
-                                FontAwesomeIcons.google,
+                                FontAwesomeIcons.squareGooglePlus,
                                 size: 16,
                                 color: Colors.lightBlueAccent,
                               ),

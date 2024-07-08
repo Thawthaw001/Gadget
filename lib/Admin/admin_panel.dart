@@ -1,4 +1,4 @@
-// ignore_for_file: use_super_parameters, prefer_const_constructors, use_build_context_synchronously, must_be_immutable
+// ignore_for_file: use_super_parameters, prefer_const_constructors, use_build_context_synchronously, must_be_immutable, avoid_print
 
 import 'dart:io';
 
@@ -24,8 +24,8 @@ class _AdminPanelState extends State<AdminPanel> {
 
   final picker = ImagePicker();
 
-  void _logout(BuildContext context) async {
-    await auth.signOut(); // Call your signOut method from AuthService
+  void _logout() async {
+    await auth.signOut(); 
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -82,7 +82,7 @@ class _AdminPanelState extends State<AdminPanel> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => _logout(context),
+            onPressed: () => _logout(),
           ),
         ],
       ),
@@ -97,7 +97,7 @@ class _AdminPanelState extends State<AdminPanel> {
                   onPressed: () {
                     print('brand');
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Brand()));
+                        MaterialPageRoute(builder: (context) => BrandPage()));
                   },
                   icon: Icon(Icons.branding_watermark_sharp)),
               SizedBox(height: 20),

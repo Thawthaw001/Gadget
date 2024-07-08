@@ -14,6 +14,7 @@ import 'package:thaw/Widget/categoryButton.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/decoration.dart';
+import 'package:thaw/utils/formfield.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,18 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: (AppBar(
-          title: const Row(
+          title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Categories',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'English'),
-          ),
-        ],
+        children: [Text('Categories', style: formfieldStyle)],
       ))),
       drawer: DrawerFb1(),
       body: Container(
