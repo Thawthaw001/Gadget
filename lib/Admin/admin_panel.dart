@@ -3,11 +3,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:thaw/Admin/Brand/Edit%20&%20Delete%20brand%20,%20model/edit_delete_brandmodel.dart';
 import 'package:thaw/Admin/Brand/brand_panel.dart';
 import 'package:thaw/Admin/Model/category_model.dart';
 import 'package:thaw/Admin/categoryService.dart';
 import 'package:thaw/auth/loginscreen.dart';
+import 'package:thaw/utils/decoration.dart';
+import 'package:thaw/utils/formfield.dart';
 import '../auth/auth_service.dart';
 
 class AdminPanel extends StatefulWidget {
@@ -25,7 +29,7 @@ class _AdminPanelState extends State<AdminPanel> {
   final picker = ImagePicker();
 
   void _logout() async {
-    await auth.signOut(); 
+    await auth.signOut();
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -78,7 +82,7 @@ class _AdminPanelState extends State<AdminPanel> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: Text('Gadget Max\'s Admin Panel', style: formfieldStyle),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -86,47 +90,81 @@ class _AdminPanelState extends State<AdminPanel> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Center(
+      body: Container(
+        decoration: getDecoration(),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('Welcome to Admin Panel'),
-              SizedBox(width: 10),
-              IconButton(
-                  onPressed: () {
-                    print('brand');
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => BrandPage()));
-                  },
-                  icon: Icon(Icons.branding_watermark_sharp)),
+              Text(
+                'Brand Control',
+                style: formfieldStyle,
+              ),
               SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Category Name',
-                    border: OutlineInputBorder(),
-                  ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => BrandPage()));
+                },
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Go to Brand Page'),
+                    SizedBox(width: 8),
+                    Image.asset('assets/images/brand-removebg-preview.png',
+                        height: 24)
+                  ],
                 ),
               ),
-              _image != null
-                  ? Image.file(
-                      _image!,
-                      height: 100,
-                      width: 100,
-                      fit: BoxFit.cover,
-                    )
-                  : SizedBox.shrink(),
-              ElevatedButton(
-                onPressed: getImage,
-                child: Text('Pick Image'),
+              SizedBox(height: 20),
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                    hintText: 'Type Category Name',
+                    filled: true,
+                    fillColor: Color(0xFFFFDFE5),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10))),
               ),
+              SizedBox(height: 20),
+              GestureDetector(
+                onTap: getImage,
+                child: Container(
+                  color: Color(0xFFFFFFFF),
+                  height: 150,
+                  width: 150,
+                  child: _image == null
+                      ? Center(child: Text('Pick Image'))
+                      : Image.file(_image!, fit: BoxFit.cover),
+                ),
+              ),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => _addCategory(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFFDFE5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 child: Text('Add Category'),
               ),
+              SizedBox(height: 10),
+              Text('View added brand & model', style: formfieldStyle),
+              SizedBox(height: 10),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const EditDeleteBrandModel()));
+                },
+                icon: Icon(FontAwesomeIcons.arrowRight),
+              )
             ],
           ),
         ),
