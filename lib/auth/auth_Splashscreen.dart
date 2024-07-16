@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:thaw/Admin/admin_panel.dart';
-import 'package:thaw/Pages/homePage.dart';
+import 'package:thaw/Pages/home_page.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/sharepreferences.dart';
 
@@ -25,8 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     String? role = await SharePreferenceService.getUseRole();
 
-
-print("Sharepref role is $role");
+    print("Sharepref role is $role");
     setState(() {
       userRole = role;
     });

@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -5,7 +7,7 @@ class EditBrandScreen extends StatefulWidget {
   final String categoryId;
   final String brandId;
 
-  const EditBrandScreen({
+  const EditBrandScreen({super.key, 
     required this.categoryId,
     required this.brandId,
   });

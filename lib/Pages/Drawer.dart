@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/formfield.dart';
-
+ 
 class DrawerFb1 extends StatefulWidget {
   const DrawerFb1({super.key});
 
@@ -23,6 +23,7 @@ class DrawerFb1State extends State<DrawerFb1> {
     super.initState();
     _fetchUserData();
   }
+  
 
   Future<void> _fetchUserData() async {
     try {
@@ -115,35 +116,4 @@ class DrawerFb1State extends State<DrawerFb1> {
   }
 }
 
-class SearchFieldDrawer extends StatelessWidget {
-  const SearchFieldDrawer({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    const color = Color.fromARGB(255, 27, 234, 234);
-
-    return TextField(
-      style: const TextStyle(color: color, fontSize: 14),
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        hintText: 'Search',
-        hintStyle: const TextStyle(color: color),
-        prefixIcon: const Icon(
-          Icons.search,
-          color: color,
-          size: 20,
-        ),
-        filled: true,
-        fillColor: const Color.fromARGB(255, 225, 218, 16),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: color.withOpacity(0.7)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: color.withOpacity(0.7)),
-        ),
-      ),
-    );
-  }
-}

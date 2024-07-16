@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:thaw/Admin/admin_panel.dart';
 import 'package:thaw/Pages/Forgotpassword.dart';
-import 'package:thaw/Pages/homePage.dart';
+import 'package:thaw/Pages/home_page.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/register.dart';
 import 'package:thaw/models/UserData.dart';

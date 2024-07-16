@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-TextStyle categoryStyle = const TextStyle(
-  fontSize:30,
+TextStyle categoryStyle =  const TextStyle(
+  fontSize:20,
   fontFamily:'English',
   fontWeight:FontWeight.bold,
-  color:Colors.pinkAccent
+  color:Colors.black
 );

@@ -25,7 +25,6 @@ class _EditDeleteBrandModelState extends State<EditDeleteBrandModel> {
   }
 
   Future<void> fetchCategories() async {
-    print(categories);
     try {
       final QuerySnapshot result =
           await FirebaseFirestore.instance.collection('categories').get();
@@ -93,94 +92,121 @@ class _EditDeleteBrandModelState extends State<EditDeleteBrandModel> {
         title: const Text('Edit & Delete Brand and Model'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(50),
-        child: Center(
-          child: Column(
-            children: [
-              DropdownButton<String>(
-                hint: const Text('Select Category'),
-                value: selectedCategoryId.isEmpty ? null : selectedCategoryId,
-                items: categories.map((category) {
-                  return DropdownMenuItem<String>(
-                    value: category.id,
-                    child: Text(category['name']),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategoryId = value!;
-                    selectedBrandId = '';
-                    selectedModelId = '';
-                    brands.clear();
-                    models.clear();
-                    fetchBrands(selectedCategoryId);
-                  });
-                },
-              ),
-              DropdownButton<String>(
-                hint: const Text('Select Brand'),
-                value: selectedBrandId.isEmpty ? null : selectedBrandId,
-                items: brands.map((brand) {
-                  return DropdownMenuItem<String>(
-                    value: brand.id,
-                    child: Text(brand['name']),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedBrandId = value!;
-                    selectedModelId = '';
-                    models.clear();
-                    fetchModels(selectedCategoryId, selectedBrandId);
-                  });
-                },
-              ),
-              DropdownButton<String>(
-                hint: const Text('Select Model'),
-                value: selectedModelId.isEmpty ? null : selectedModelId,
-                items: models.map((model) {
-                  return DropdownMenuItem<String>(
-                    value: model.id,
-                    child: Text(model['name']),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedModelId = value!;
-                  });
-                },
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (selectedCategoryId.isNotEmpty &&
-                      selectedBrandId.isNotEmpty &&
-                      selectedModelId.isNotEmpty) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditModelScreen(
-                          categoryId: selectedCategoryId,
-                          brandId: selectedBrandId,
-                          modelId: selectedModelId,
-                        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            DropdownButton<String>(
+              hint: const Text('Select Category'),
+              value: selectedCategoryId.isEmpty ? null : selectedCategoryId,
+              items: categories.map((category) {
+                return DropdownMenuItem<String>(
+                  value: category.id,
+                  child: Text(category['name']),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedCategoryId = value!;
+                  selectedBrandId = '';
+                  selectedModelId = '';
+                  brands.clear();
+                  models.clear();
+                  fetchBrands(selectedCategoryId);
+                });
+              },
+            ),
+            DropdownButton<String>(
+              hint: const Text('Select Brand'),
+              value: selectedBrandId.isEmpty ? null : selectedBrandId,
+              items: brands.map((brand) {
+                return DropdownMenuItem<String>(
+                  value: brand.id,
+                  child: Text(brand['name']),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedBrandId = value!;
+                  selectedModelId = '';
+                  models.clear();
+                  fetchModels(selectedCategoryId, selectedBrandId);
+                });
+              },
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: models.length,
+                itemBuilder: (context, index) {
+                  var model = models[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: ListTile(
+                      leading: model['image'] != null && model['image'].isNotEmpty
+                          ? Image.network(
+                              model['image'],
+                              width: 50,
+                              height: 50,
+                            )
+                          : const Icon(Icons.image_not_supported),
+                      title: Text(model['name']),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${model['price']} Kyats'),
+                          Text('Specs: ${model['specs']}'),
+                        ],
                       ),
-                    );
-                    print(
-                        "Edit Model are $selectedCategoryId && $selectedBrandId && $selectedModelId");
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text(
-                              'Please select a category, brand, and model')),
-                    );
-                  }
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditModelScreen(
+                                    categoryId: selectedCategoryId,
+                                    brandId: selectedBrandId,
+                                    modelId: model.id,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              deleteModel(selectedCategoryId, selectedBrandId, model.id);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
-                child: const Text('Edit Model'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Future<void> deleteModel(String categoryId, String brandId, String modelId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('categories')
+          .doc(categoryId)
+          .collection('brands')
+          .doc(brandId)
+          .collection('models')
+          .doc(modelId)
+          .delete();
+      fetchModels(categoryId, brandId);
+    } catch (e) {
+      print('Error deleting model: $e');
+    }
+  }
 }
+
