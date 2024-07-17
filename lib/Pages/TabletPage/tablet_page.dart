@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:thaw/Pages/PcPage/pc_productcard.dart';
+import 'package:thaw/Pages/TabletPage/tablet_products.dart';
 import 'package:thaw/utils/decoration.dart';
 
-class PcPage extends StatefulWidget {
+class Tablet extends StatefulWidget {
   final String category;
 
-  const PcPage({super.key, required this.category});
+  const Tablet({super.key, required this.category});
 
   @override
-  State<PcPage> createState() => _PcPageState();
+  State<Tablet> createState() => _TabletState();
 }
 
-class _PcPageState extends State<PcPage> {
+class _TabletState extends State<Tablet> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<List<Map<String, dynamic>>> _fetchModelsByCategory() async {

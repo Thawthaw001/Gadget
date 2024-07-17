@@ -4,7 +4,9 @@ import 'package:thaw/Pages/MobilePage/mobile_productcard.dart';
 import 'package:thaw/utils/decoration.dart';
 
 class MobilePage extends StatefulWidget {
-  const MobilePage({super.key});
+  final String category;
+
+  const MobilePage({super.key, required this.category});
 
   @override
   State<MobilePage> createState() => _MobilePageState();
@@ -13,15 +15,16 @@ class MobilePage extends StatefulWidget {
 class _MobilePageState extends State<MobilePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<List<Map<String, dynamic>>> _fetchAllModels() async {
+  Future<List<Map<String, dynamic>>> _fetchModelsByCategory() async {
     List<Map<String, dynamic>> models = [];
-
     try {
-      QuerySnapshot categoriesSnapshot =
-          await _firestore.collection('categories').get();
+      QuerySnapshot categoriesSnapshot = await _firestore
+          .collection('categories')
+          .where('name', isEqualTo: widget.category)
+          .get();
 
-      for (var categoryDoc in categoriesSnapshot.docs) {
-        String categoryId = categoryDoc.id;
+      if (categoriesSnapshot.docs.isNotEmpty) {
+        String categoryId = categoriesSnapshot.docs.first.id;
 
         QuerySnapshot brandsSnapshot =
             await _firestore.collection('categories/$categoryId/brands').get();
@@ -41,7 +44,7 @@ class _MobilePageState extends State<MobilePage> {
         }
       }
     } catch (e) {
-      // print('Error fetching models: $e');
+      // Handle errors here
     }
 
     return models;
@@ -60,7 +63,7 @@ class _MobilePageState extends State<MobilePage> {
           child: Column(
             children: [
               FutureBuilder<List<Map<String, dynamic>>>(
-                future: _fetchAllModels(),
+                future: _fetchModelsByCategory(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -72,10 +75,8 @@ class _MobilePageState extends State<MobilePage> {
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: GridView.builder(
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Disable GridView scrolling
-                        shrinkWrap:
-                            true, // Make GridView take minimum height required
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,

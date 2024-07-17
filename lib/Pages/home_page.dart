@@ -1,15 +1,16 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unused_element
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:thaw/Pages/AccessoriesPage/accessories_page.dart';
+import 'package:thaw/Pages/PcPage/pc_page.dart';
+import 'package:thaw/Pages/TabletPage/tablet_page.dart';
 import 'package:thaw/Pages/addtocart.dart';
 import 'package:thaw/Pages/calendar.dart';
 import 'package:thaw/Pages/drawer.dart';
-import 'package:thaw/Pages/accessoriesPage.dart';
 import 'package:thaw/Pages/MobilePage/mobilepage.dart';
 import 'package:thaw/Pages/profilepage.dart';
 import 'package:thaw/Pages/seemore.dart';
-import 'package:thaw/Pages/tabletPage.dart';
 import 'package:thaw/Widget/%20brand_product.dart';
 import 'package:thaw/Widget/bottom_navbar.dart';
 import 'package:thaw/Widget/brand_data_grid.dart';
@@ -32,6 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchController = TextEditingController();
   int _selectedIndex = 0;
 
+  Future<void> _navigateToCategoryPage(String category, Widget page) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => page,
+      ),
+    );
+  }
+
   Future<List<DocumentSnapshot>> _fetchCarouselDocs() async {
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('carouselcategories').get();
@@ -52,7 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const MobilePage(),
+            builder: (context) => const MobilePage(
+              category: 'Mobile',
+            ),
           ),
         );
       } else {
@@ -82,7 +94,73 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const MobilePage(),
+            builder: (context) => const PcPage(
+              category: 'PC',
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('No brands found for selected category.')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No categories found.')),
+      );
+    }
+  }
+
+  Future<void> _navigateToTabletPage() async {
+    QuerySnapshot categorySnapshot =
+        await FirebaseFirestore.instance.collection('categories').get();
+    if (categorySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot categoryDoc = categorySnapshot.docs.first;
+      String categoryId = categoryDoc.id;
+
+      QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
+          .collection('categories/$categoryId/brands')
+          .get();
+      if (brandSnapshot.docs.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Tablet(
+              category: 'Tablet',
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('No brands found for selected category.')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No categories found.')),
+      );
+    }
+  }
+
+  Future<void> _navigateToAccessoriesPage() async {
+    QuerySnapshot categorySnapshot =
+        await FirebaseFirestore.instance.collection('categories').get();
+    if (categorySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot categoryDoc = categorySnapshot.docs.first;
+      String categoryId = categoryDoc.id;
+
+      QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
+          .collection('categories/$categoryId/brands')
+          .get();
+      if (brandSnapshot.docs.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Accessories(
+              category: 'Accessories',
+            ),
           ),
         );
       } else {
@@ -146,35 +224,29 @@ class _HomeScreenState extends State<HomeScreen> {
               CategoryButton(
                 label: 'Mobile',
                 icon: Icons.phone_android,
-                onPressed: _navigateToMobilePage, // Navigate to MobilePage
+                onPressed: () => _navigateToCategoryPage(
+                    'Mobile', const MobilePage(category: 'Mobile')),
               ),
+              const SizedBox(width: 5),
               CategoryButton(
-                  label: 'PC',
-                  icon: Icons.computer,
-                  onPressed: _navigateToPcPage),
+                label: 'PC',
+                icon: Icons.computer,
+                onPressed: () =>
+                    _navigateToCategoryPage('PC', const PcPage(category: 'PC')),
+              ),
+              const SizedBox(width: 5),
               CategoryButton(
                 label: 'Accessories',
                 icon: Icons.headset,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const accessoreisPage(),
-                    ),
-                  );
-                },
+                onPressed: () => _navigateToCategoryPage(
+                    'Accessories', const Accessories(category: 'Accessories')),
               ),
+              const SizedBox(width: 5),
               CategoryButton(
                 label: 'Tablet',
                 icon: Icons.tablet,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const tabletPage(),
-                    ),
-                  );
-                },
+                onPressed: () => _navigateToCategoryPage(
+                    'Tablet', const Tablet(category: 'Tablet')),
               ),
             ],
           ),
