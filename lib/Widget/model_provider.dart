@@ -35,10 +35,10 @@ class ModelProvider with ChangeNotifier {
     }
   }
 
-  void addToCart(String modelId, String imageUrl, String name, double price,
+  bool addToCart(String modelId, String imageUrl, String name, double price,
       String selectedColor, String selectedStorage) {
-    if (_quantity <= 0) {
-      return;
+    if (_quantity <= 0 || _selectedColor.isEmpty || _selectedStorage.isEmpty) {
+      return false; 
     }
     final existingItemIndex = _basket.indexWhere((item) =>
         item['modelId'] == modelId &&
@@ -61,7 +61,10 @@ class ModelProvider with ChangeNotifier {
       _basket.add(item);
     }
     _quantity = 0;
+        resetSelections();
+
     notifyListeners();
+    return true;
   }
 
   void removeFromCart(String modelId,String color,String storage){
@@ -79,6 +82,14 @@ class ModelProvider with ChangeNotifier {
         break;
       }
     }
+    notifyListeners();
+  }
+
+
+    void resetSelections() {
+    _selectedColor = '';
+    _selectedStorage = '';
+    _quantity = 0;
     notifyListeners();
   }
 }

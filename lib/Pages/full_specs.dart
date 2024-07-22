@@ -385,9 +385,11 @@ class FullSpecsPage extends StatelessWidget {
               onAddToCartPressed: () {
                 final modelProvider =
                     Provider.of<ModelProvider>(context, listen: false);
-                if (modelProvider.quantity > 0) {
+                if (modelProvider.quantity > 0 &&
+                    modelProvider.selectedColor.isNotEmpty &&
+                    modelProvider.selectedStorage.isNotEmpty) {
                   modelProvider.addToCart(
-                    modelId ,
+                    modelId,
                     model['imageUrl'] ?? '',
                     model['name'] ?? '',
                     model['price']?.toDouble() ?? 0.0,
@@ -399,15 +401,30 @@ class FullSpecsPage extends StatelessWidget {
                       content: Text('Added to cart'),
                     ),
                   );
-                } else {
+                } else if(modelProvider.selectedColor.isEmpty ){
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Quantity must be greater than 0'),
+                      content: Text('Color  must be choose one'),
+                    ),
+                  );
+                }
+
+                else if(modelProvider.selectedStorage.isEmpty ){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Storage  must be choose one'),
+                    ),
+                  );
+                }
+                else{
+                     ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Qty  must be choose one'),
                     ),
                   );
                 }
               },
-             );
+            );
           }
         },
       ),
