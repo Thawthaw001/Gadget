@@ -1,23 +1,39 @@
-import 'package:thaw/Admin/Brand/model/brand_model.dart';
-
 class Brand {
-  String name;
-  List<Model> models;
+  final String name;
+  final String imageUrl;
+  final List<String> colors;
+  final List<String> storageOptions;
+  final bool inStock;
+  final int quantity;
 
-  Brand({required this.name, required this.models});
+  Brand({
+    required this.quantity,
+    required this.name,
+    required this.imageUrl,
+    required this.colors,
+    required this.storageOptions,
+    required this.inStock,
+  });
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'models': models.map((model) => model.toMap()).toList(),
+      'imageUrl': imageUrl,
+      'colors': colors,
+      'storageOptions': storageOptions,
+      'inStock': inStock,
+      'quantity': quantity,
     };
   }
 
   factory Brand.fromMap(Map<String, dynamic> map) {
     return Brand(
       name: map['name'],
-      models: List<Model>.from(
-          map['models']?.map((model) => Model.fromMap(model)) ?? []),
+      imageUrl: map['imageUrl'],
+      colors: List<String>.from(map['colors']),
+      storageOptions: List<String>.from(map['storageOptions']),
+      inStock: map['inStock'],
+      quantity: map['quantity'],
     );
   }
 }

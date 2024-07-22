@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:thaw/Pages/PcPage/pc_productcard.dart';
+import 'package:thaw/Pages/productcard.dart';
 import 'package:thaw/utils/decoration.dart';
 
 class PcPage extends StatefulWidget {
@@ -39,12 +39,29 @@ class _PcPageState extends State<PcPage> {
           for (var modelDoc in modelsSnapshot.docs) {
             Map<String, dynamic> modelData =
                 modelDoc.data() as Map<String, dynamic>;
+
+            // Provide default values if any key is missing or null
+            modelData['categoryId'] = categoryId;
+            modelData['brandId'] = brandId;
+            modelData['id'] =
+                modelDoc.id; // Ensuring model id is added and not null
+            modelData['name'] = modelData['name'] ?? 'Unknown Model';
+            modelData['price'] = modelData['price'] ?? 0.0;
+            modelData['specs'] =
+                modelData['specs'] ?? 'No specifications available';
+            modelData['imageUrl'] = modelData['imageUrl'] ?? '';
+            modelData['colors'] = modelData['colors'] ?? [];
+            modelData['storageOptions'] = modelData['storageOptions'] ?? [];
+            modelData['inStock'] = modelData['inStock'] ?? false;
+            modelData['quantity'] = modelData['quantity'] ?? 0;
+
             models.add(modelData);
           }
         }
       }
     } catch (e) {
       // Handle errors here
+      print('Error fetching models by category: $e');
     }
 
     return models;
@@ -87,7 +104,11 @@ class _PcPageState extends State<PcPage> {
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           var model = snapshot.data![index];
-                          return ProductCard(model: model);
+                          return ProductCard(
+                            model: model,
+                            categoryId: model['categoryId'],
+                            brandId: model['brandId'],
+                          );
                         },
                       ),
                     );

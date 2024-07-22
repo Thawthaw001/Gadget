@@ -1,11 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:thaw/Admin/Brand/brand_service.dart';
+import 'package:thaw/Admin/Brand/model/brand_class.dart';
+import 'package:thaw/Admin/Brand/model/brand_model.dart';
+
 class BrandPage extends StatefulWidget {
-  const BrandPage({Key? key}) : super(key: key);
+  const BrandPage({super.key});
 
   @override
   _BrandPageState createState() => _BrandPageState();
@@ -20,6 +26,12 @@ class _BrandPageState extends State<BrandPage> {
   final TextEditingController modelNameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController specsController = TextEditingController();
+  final TextEditingController storageOptionsController =
+      TextEditingController();
+  final TextEditingController quantityController =
+      TextEditingController(); // Add this line
+  bool inStock = false;
+  List<String> selectedColors = [];
   File? _image;
   final ImagePicker _picker = ImagePicker();
 
@@ -92,15 +104,22 @@ class _BrandPageState extends State<BrandPage> {
 
   Future<void> addBrand() async {
     if (selectedCategoryId.isNotEmpty && brandNameController.text.isNotEmpty) {
-      await FirebaseFirestore.instance
-          .collection('categories')
-          .doc(selectedCategoryId)
-          .collection('brands')
-          .add({
-        'name': brandNameController.text,
-        // Add 'image' field if necessary
-        // 'image': imageUrl,
-      });
+      List<String> colors = selectedColors.isNotEmpty
+          ? List.from(selectedColors)
+          : [''];  
+      List<String> storageOptions = storageOptionsController.text.isNotEmpty
+          ? storageOptionsController.text.split(',')
+          : ['']; 
+      Brand newBrand = Brand(
+          name: brandNameController.text,
+          imageUrl: 'your_image_url_here',
+          colors: colors,
+          storageOptions: storageOptions,
+          inStock: inStock,
+           quantity: 0 // Default quantity for brand, update as necessary
+          );
+
+      await BrandService().addBrand(selectedCategoryId, newBrand);
 
       brandNameController.clear();
 
@@ -111,60 +130,65 @@ class _BrandPageState extends State<BrandPage> {
       fetchBrands(selectedCategoryId);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category and enter a brand name')),
+        const SnackBar(
+            content: Text('Please select a category and enter a brand name')),
       );
     }
   }
 
   void addModel() async {
     String modelName = modelNameController.text.trim();
-    String price = priceController.text.trim();
+    double price = double.parse(priceController.text.trim());
     String specs = specsController.text.trim();
+    List<String> colors = selectedColors.isNotEmpty
+        ? List.from(selectedColors)
+        : ['']; // Example colors list
+    List<String> storageOptions = storageOptionsController.text.isNotEmpty
+        ? storageOptionsController.text.split(',')
+        : ['']; // Example storage options list
+    int quantity = int.parse(quantityController.text.trim()); // Add this line
 
     if (selectedCategoryId.isNotEmpty &&
         selectedBrandId.isNotEmpty &&
         modelName.isNotEmpty &&
-        price.isNotEmpty &&
-        specs.isNotEmpty) {
+        price.toString().isNotEmpty &&
+        specs.isNotEmpty &&
+        quantityController.text.isNotEmpty) {
+      // Ensure quantity is also filled
       String? imageUrl;
 
       if (_image != null) {
         imageUrl = await uploadImageToStorage(_image!);
       }
 
-      if (imageUrl != null) {
-        CollectionReference modelsRef = FirebaseFirestore.instance
-            .collection('categories')
-            .doc(selectedCategoryId)
-            .collection('brands')
-            .doc(selectedBrandId)
-            .collection('models');
+      Model newModel = Model(
+        name: modelName,
+        price: price,
+        specs: specs,
+        imageUrl: imageUrl ?? 'default_image_url_here',
+        colors: colors,
+        storageOptions: storageOptions,
+        inStock: inStock,
+        quantity: quantity, // Add this line
+      );
 
-        modelsRef.add({
-          'name': modelName,
-          'price': price,
-          'specs': specs,
-          'image': imageUrl,
-        }).then((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Model added successfully!')),
-          );
-          modelNameController.clear();
-          priceController.clear();
-          specsController.clear();
-          setState(() {
-            _image = null;
-          });
-        }).catchError((error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to add model: $error')),
-          );
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please upload an image')),
-        );
-      }
+      await BrandService()
+          .addModel(selectedCategoryId, selectedBrandId, newModel);
+
+      modelNameController.clear();
+      priceController.clear();
+      specsController.clear();
+      storageOptionsController.clear();
+      quantityController.clear(); // Clear quantity controller
+      setState(() {
+        _image = null;
+        selectedColors = [];
+        inStock = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Model added successfully!')),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
@@ -230,6 +254,27 @@ class _BrandPageState extends State<BrandPage> {
               TextField(
                 controller: specsController,
                 decoration: const InputDecoration(labelText: 'Specifications'),
+              ),
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: storageOptionsController,
+                decoration: const InputDecoration(labelText: 'Storage Options'),
+              ),
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: quantityController, // Add this line
+                decoration: const InputDecoration(
+                    labelText: 'Quantity'), // Add this line
+              ),
+              const SizedBox(height: 16.0),
+              CheckboxListTile(
+                title: const Text('In Stock'),
+                value: inStock,
+                onChanged: (bool? value) {
+                  setState(() {
+                    inStock = value ?? false;
+                  });
+                },
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(

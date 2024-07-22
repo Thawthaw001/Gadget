@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:thaw/Pages/AccessoriesPage/accessories_products.dart';
-import 'package:thaw/utils/decoration.dart';
+import 'package:thaw/Pages/productcard.dart';
+ import 'package:thaw/utils/decoration.dart';
 
 class Accessories extends StatefulWidget {
   final String category;
@@ -87,7 +87,7 @@ class _TabletState extends State<Accessories> {
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           var model = snapshot.data![index];
-                          return ProductCard(model: model);
+                          return ProductCard(model: model, categoryId: '', brandId: '',);
                         },
                       ),
                     );

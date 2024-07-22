@@ -1,54 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:thaw/Pages/full_specs.dart';
 
 class ProductCard extends StatelessWidget {
+  final String categoryId;
+  final String brandId;
   final Map<String, dynamic> model;
 
-  const ProductCard({super.key, required this.model});
+  const ProductCard({
+    super.key,
+    required this.categoryId,
+    required this.brandId,
+    required this.model,
+  });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
           elevation: 2.0,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: model['image'].isNotEmpty
+                child: model['imageUrl'] != null && model['imageUrl'].isNotEmpty
                     ? ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16.0)),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                           child: Image.network(
-                            model['image'],
+                            model['imageUrl'],
                             fit: BoxFit.cover,
                             width: double.infinity,
-                            height: constraints.maxHeight * 0.5, // Adjust height based on available space
+                            height: constraints.maxHeight * 0.5,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;
                               return Center(
                                 child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          (loadingProgress.expectedTotalBytes ??
+                                              1)
                                       : null,
                                 ),
                               );
                             },
-                            errorBuilder: (context, error, stackTrace) => Container(
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
                               color: Colors.grey,
-                              child: const Icon(Icons.image_not_supported, size: 100),
+                              child: const Icon(Icons.image_not_supported,
+                                  size: 100),
                             ),
                           ),
                         ),
                       )
                     : ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16.0)),
                         child: Container(
                           color: Colors.grey,
-                          child: const Icon(Icons.image_not_supported, size: 100),
+                          child:
+                              const Icon(Icons.image_not_supported, size: 100),
                         ),
                       ),
               ),
@@ -58,29 +75,12 @@ class ProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      model['name'],
+                      model['name'] ?? 'Unknown Model',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 15),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 5),
-                    Text(
-                      'Price: Kyats${model['price']}',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "English"),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Specs: ${model['specs']}',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "English"),
-                      textAlign: TextAlign.center,
-                    ),
                   ],
                 ),
               ),
@@ -92,39 +92,18 @@ class ProductCard extends StatelessWidget {
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                       child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              'assets/icons/addtocart.png',
-                              width: 20.0,
-                              height: 20.0,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullSpecsPage(
+                                categoryId: categoryId,
+                                brandId: brandId,
+                                modelId: model['id'],
+                              ),
                             ),
-                            const SizedBox(width: 4.0),
-                            const Text(
-                              'Add to Cart',
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  fontFamily: "English",
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      child: ElevatedButton(
-                        onPressed: () {},
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
