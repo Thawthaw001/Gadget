@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:thaw/Pages/AccessoriesPage/accessories_page.dart';
 import 'package:thaw/Pages/PcPage/pc_page.dart';
 import 'package:thaw/Pages/TabletPage/tablet_page.dart';
-import 'package:thaw/Pages/addtocart.dart';
+import 'package:thaw/Pages/basket.dart';
 import 'package:thaw/Pages/calendar.dart';
 import 'package:thaw/Pages/drawer.dart';
 import 'package:thaw/Pages/MobilePage/mobilepage.dart';
@@ -182,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
         case 1:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddToCartPage()),
+            MaterialPageRoute(builder: (context) => const BasketPage()),
           ).then((_) {
             setState(() {
               _selectedIndex = 0; // Reset to home screen index

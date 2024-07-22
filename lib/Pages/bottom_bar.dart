@@ -8,10 +8,10 @@ class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key, required this.onAddToCartPressed});
 
   @override
-  _BottomNavBarState createState() => _BottomNavBarState();
+  BottomNavBarState createState() => BottomNavBarState();
 }
 
-class _BottomNavBarState extends State<BottomNavBar> {
+class BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     final modelProvider = Provider.of<ModelProvider>(context);
