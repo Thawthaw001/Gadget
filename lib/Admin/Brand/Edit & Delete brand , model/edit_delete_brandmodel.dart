@@ -141,9 +141,10 @@ class _EditDeleteBrandModelState extends State<EditDeleteBrandModel> {
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 10),
                     child: ListTile(
-                      leading: model['image'] != null && model['image'].isNotEmpty
+                      leading: model['imageUrl'] != null &&
+                              model['imageUrl'].isNotEmpty
                           ? Image.network(
-                              model['image'],
+                              model['imageUrl'],
                               width: 50,
                               height: 50,
                             )
@@ -177,7 +178,8 @@ class _EditDeleteBrandModelState extends State<EditDeleteBrandModel> {
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              deleteModel(selectedCategoryId, selectedBrandId, model.id);
+                              deleteModel(selectedCategoryId, selectedBrandId,
+                                  model.id);
                             },
                           ),
                         ],
@@ -193,7 +195,8 @@ class _EditDeleteBrandModelState extends State<EditDeleteBrandModel> {
     );
   }
 
-  Future<void> deleteModel(String categoryId, String brandId, String modelId) async {
+  Future<void> deleteModel(
+      String categoryId, String brandId, String modelId) async {
     try {
       await FirebaseFirestore.instance
           .collection('categories')
@@ -209,4 +212,3 @@ class _EditDeleteBrandModelState extends State<EditDeleteBrandModel> {
     }
   }
 }
-

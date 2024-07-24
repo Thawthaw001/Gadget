@@ -36,7 +36,7 @@ class ModelProvider with ChangeNotifier {
   }
 
   bool addToCart(String modelId, String imageUrl, String name, double price,
-      String selectedColor, String selectedStorage) {
+      String selectedColor, String selectedStorage, int quantity) {
     if (_quantity <= 0 || _selectedColor.isEmpty || _selectedStorage.isEmpty) {
       return false; 
     }

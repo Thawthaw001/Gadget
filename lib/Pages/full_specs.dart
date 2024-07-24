@@ -376,11 +376,11 @@ class FullSpecsPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (!snapshot.hasData || snapshot.data!.data() == null) {
-            print('Data ${snapshot.data?.id}');
-
             return const Center(child: Text('Model not found'));
           } else {
             final model = snapshot.data!.data() as Map<String, dynamic>;
+            final int availableQuantity = model['quantity'] ?? 0;
+
             return BottomNavBar(
               onAddToCartPressed: () {
                 final modelProvider =
@@ -388,6 +388,17 @@ class FullSpecsPage extends StatelessWidget {
                 if (modelProvider.quantity > 0 &&
                     modelProvider.selectedColor.isNotEmpty &&
                     modelProvider.selectedStorage.isNotEmpty) {
+                  // Check if the quantity exceeds available stock
+                  if (modelProvider.quantity > availableQuantity) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'This model has only $availableQuantity items available.'),
+                      ),
+                    );
+                    return;
+                  }
+
                   modelProvider.addToCart(
                     modelId,
                     model['imageUrl'] ?? '',
@@ -395,31 +406,29 @@ class FullSpecsPage extends StatelessWidget {
                     model['price']?.toDouble() ?? 0.0,
                     modelProvider.selectedColor,
                     modelProvider.selectedStorage,
+                    modelProvider.quantity,
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Added to cart'),
                     ),
                   );
-                } else if(modelProvider.selectedColor.isEmpty ){
+                } else if (modelProvider.selectedColor.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Color  must be choose one'),
+                      content: Text('Color must be chosen.'),
                     ),
                   );
-                }
-
-                else if(modelProvider.selectedStorage.isEmpty ){
+                } else if (modelProvider.selectedStorage.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Storage  must be choose one'),
+                      content: Text('Storage must be chosen.'),
                     ),
                   );
-                }
-                else{
-                     ScaffoldMessenger.of(context).showSnackBar(
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Qty  must be choose one'),
+                      content: Text('Quantity must be greater than zero.'),
                     ),
                   );
                 }

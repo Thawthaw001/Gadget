@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:thaw/Admin/Brand/brand_service.dart';
 import 'package:thaw/Admin/Brand/model/brand_class.dart';
 import 'package:thaw/Admin/Brand/model/brand_model.dart';
+import 'package:thaw/Admin/Widget/custom_tag.dart';
 
 class BrandPage extends StatefulWidget {
   const BrandPage({super.key});
@@ -26,12 +27,9 @@ class _BrandPageState extends State<BrandPage> {
   final TextEditingController modelNameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController specsController = TextEditingController();
-  final TextEditingController storageOptionsController =
-      TextEditingController();
-  final TextEditingController quantityController =
-      TextEditingController(); // Add this line
-  bool inStock = false;
+  final TextEditingController quantityController = TextEditingController();
   List<String> selectedColors = [];
+  List<String> selectedStorageOptions = [];
   File? _image;
   final ImagePicker _picker = ImagePicker();
 
@@ -104,20 +102,14 @@ class _BrandPageState extends State<BrandPage> {
 
   Future<void> addBrand() async {
     if (selectedCategoryId.isNotEmpty && brandNameController.text.isNotEmpty) {
-      List<String> colors = selectedColors.isNotEmpty
-          ? List.from(selectedColors)
-          : [''];  
-      List<String> storageOptions = storageOptionsController.text.isNotEmpty
-          ? storageOptionsController.text.split(',')
-          : ['']; 
       Brand newBrand = Brand(
-          name: brandNameController.text,
-          imageUrl: 'your_image_url_here',
-          colors: colors,
-          storageOptions: storageOptions,
-          inStock: inStock,
-           quantity: 0 // Default quantity for brand, update as necessary
-          );
+        name: brandNameController.text,
+        imageUrl: 'your_image_url_here',
+        quantity: 10,
+        colors: [],
+        storageOptions: [],
+        inStock: true,
+      );
 
       await BrandService().addBrand(selectedCategoryId, newBrand);
 
@@ -140,13 +132,7 @@ class _BrandPageState extends State<BrandPage> {
     String modelName = modelNameController.text.trim();
     double price = double.parse(priceController.text.trim());
     String specs = specsController.text.trim();
-    List<String> colors = selectedColors.isNotEmpty
-        ? List.from(selectedColors)
-        : ['']; // Example colors list
-    List<String> storageOptions = storageOptionsController.text.isNotEmpty
-        ? storageOptionsController.text.split(',')
-        : ['']; // Example storage options list
-    int quantity = int.parse(quantityController.text.trim()); // Add this line
+    int quantity = int.parse(quantityController.text.trim());
 
     if (selectedCategoryId.isNotEmpty &&
         selectedBrandId.isNotEmpty &&
@@ -154,7 +140,6 @@ class _BrandPageState extends State<BrandPage> {
         price.toString().isNotEmpty &&
         specs.isNotEmpty &&
         quantityController.text.isNotEmpty) {
-      // Ensure quantity is also filled
       String? imageUrl;
 
       if (_image != null) {
@@ -166,10 +151,10 @@ class _BrandPageState extends State<BrandPage> {
         price: price,
         specs: specs,
         imageUrl: imageUrl ?? 'default_image_url_here',
-        colors: colors,
-        storageOptions: storageOptions,
-        inStock: inStock,
-        quantity: quantity, // Add this line
+        colors: selectedColors,
+        storageOptions: selectedStorageOptions,
+        quantity: quantity,
+        inStock: true,
       );
 
       await BrandService()
@@ -178,12 +163,11 @@ class _BrandPageState extends State<BrandPage> {
       modelNameController.clear();
       priceController.clear();
       specsController.clear();
-      storageOptionsController.clear();
-      quantityController.clear(); // Clear quantity controller
+      quantityController.clear();
       setState(() {
         _image = null;
         selectedColors = [];
-        inStock = false;
+        selectedStorageOptions = [];
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -249,6 +233,7 @@ class _BrandPageState extends State<BrandPage> {
               TextField(
                 controller: priceController,
                 decoration: const InputDecoration(labelText: 'Price'),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16.0),
               TextField(
@@ -257,34 +242,42 @@ class _BrandPageState extends State<BrandPage> {
               ),
               const SizedBox(height: 16.0),
               TextField(
-                controller: storageOptionsController,
-                decoration: const InputDecoration(labelText: 'Storage Options'),
+                controller: quantityController,
+                decoration: const InputDecoration(labelText: 'Quantity'),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16.0),
-              TextField(
-                controller: quantityController, // Add this line
-                decoration: const InputDecoration(
-                    labelText: 'Quantity'), // Add this line
-              ),
-              const SizedBox(height: 16.0),
-              CheckboxListTile(
-                title: const Text('In Stock'),
-                value: inStock,
-                onChanged: (bool? value) {
+              CustomTagInput(
+                tags: selectedColors,
+                onTagsChanged: (tags) {
                   setState(() {
-                    inStock = value ?? false;
+                    selectedColors = tags;
                   });
                 },
+                hintText: 'Add Colors',
               ),
               const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: pickImage,
-                child: const Text('Pick Image'),
+              CustomTagInput(
+                tags: selectedStorageOptions,
+                onTagsChanged: (tags) {
+                  setState(() {
+                    selectedStorageOptions = tags;
+                  });
+                },
+                hintText: 'Add Storage Options',
               ),
-              const SizedBox(height: 20),
-              _image != null
-                  ? Image.file(_image!, height: 150, width: 150)
-                  : const Text('No image selected'),
+              const SizedBox(height: 16.0),
+              GestureDetector(
+                onTap: pickImage,
+                child: Container(
+                  color: Colors.grey[200],
+                  height: 150,
+                  width: double.infinity,
+                  child: _image != null
+                      ? Image.file(_image!, fit: BoxFit.cover)
+                      : const Icon(Icons.add_a_photo, size: 50),
+                ),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: addModel,
