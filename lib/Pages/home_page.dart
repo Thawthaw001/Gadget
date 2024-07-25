@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const Accessories(
+            builder: (context) => const AccessoriesPage(
               category: 'Accessories',
             ),
           ),
@@ -194,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
           //   MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
           // ).then((_) {
           //   setState(() {
-          //     _selectedIndex = 0;  
+          //     _selectedIndex = 0;
           //   });
           // });
           break;
@@ -237,8 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
               CategoryButton(
                 label: 'Accessories',
                 icon: Icons.headset,
-                onPressed: () => _navigateToCategoryPage(
-                    'Accessories', const Accessories(category: 'Accessories')),
+                onPressed: () => _navigateToCategoryPage('Accessories',
+                    const AccessoriesPage(category: 'Accessories')),
               ),
               const SizedBox(width: 5),
               CategoryButton(

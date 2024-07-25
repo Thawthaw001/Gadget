@@ -220,7 +220,7 @@ class FullSpecsPage extends StatelessWidget {
                         // Color Options & Storage Options
                         Container(
                           width: double.infinity,
-                          height: 200,
+                          height: 300,
                           padding: const EdgeInsets.only(left: 10),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -333,7 +333,7 @@ class FullSpecsPage extends StatelessWidget {
                         // CPU Specifications
                         Container(
                           width: double.infinity,
-                          height: 100,
+                          height: 300,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),

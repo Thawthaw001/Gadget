@@ -14,9 +14,17 @@ class PcPage extends StatefulWidget {
 
 class _PcPageState extends State<PcPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String selectedBrandId = '';
+  List<DropdownMenuItem<String>> brandItems = [];
+  List<Map<String, dynamic>> models = [];
 
-  Future<List<Map<String, dynamic>>> _fetchModelsByCategory() async {
-    List<Map<String, dynamic>> models = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchBrands();
+  }
+
+  Future<void> fetchBrands() async {
     try {
       QuerySnapshot categoriesSnapshot = await _firestore
           .collection('categories')
@@ -29,42 +37,62 @@ class _PcPageState extends State<PcPage> {
         QuerySnapshot brandsSnapshot =
             await _firestore.collection('categories/$categoryId/brands').get();
 
-        for (var brandDoc in brandsSnapshot.docs) {
-          String brandId = brandDoc.id;
-
-          QuerySnapshot modelsSnapshot = await _firestore
-              .collection('categories/$categoryId/brands/$brandId/models')
-              .get();
-
-          for (var modelDoc in modelsSnapshot.docs) {
-            Map<String, dynamic> modelData =
-                modelDoc.data() as Map<String, dynamic>;
-
-            // Provide default values if any key is missing or null
-            modelData['categoryId'] = categoryId;
-            modelData['brandId'] = brandId;
-            modelData['id'] =
-                modelDoc.id; // Ensuring model id is added and not null
-            modelData['name'] = modelData['name'] ?? 'Unknown Model';
-            modelData['price'] = modelData['price'] ?? 0.0;
-            modelData['specs'] =
-                modelData['specs'] ?? 'No specifications available';
-            modelData['imageUrl'] = modelData['imageUrl'] ?? '';
-            modelData['colors'] = modelData['colors'] ?? [];
-            modelData['storageOptions'] = modelData['storageOptions'] ?? [];
-            modelData['inStock'] = modelData['inStock'] ?? false;
-            modelData['quantity'] = modelData['quantity'] ?? 0;
-
-            models.add(modelData);
-          }
-        }
+        setState(() {
+          brandItems = brandsSnapshot.docs
+              .map((doc) => DropdownMenuItem<String>(
+                    value: doc.id,
+                    child: Text(doc['name']),
+                  ))
+              .toList();
+        });
       }
     } catch (e) {
-      // Handle errors here
-      print('Error fetching models by category: $e');
+      print('Error fetching brands: $e');
     }
+  }
 
-    return models;
+  Future<void> fetchModelsByBrand(String brandId) async {
+    List<Map<String, dynamic>> fetchedModels = [];
+    try {
+      QuerySnapshot categoriesSnapshot = await _firestore
+          .collection('categories')
+          .where('name', isEqualTo: widget.category)
+          .get();
+
+      if (categoriesSnapshot.docs.isNotEmpty) {
+        String categoryId = categoriesSnapshot.docs.first.id;
+
+        QuerySnapshot modelsSnapshot = await _firestore
+            .collection('categories/$categoryId/brands/$brandId/models')
+            .get();
+
+        for (var modelDoc in modelsSnapshot.docs) {
+          Map<String, dynamic> modelData =
+              modelDoc.data() as Map<String, dynamic>;
+
+          modelData['categoryId'] = categoryId;
+          modelData['brandId'] = brandId;
+          modelData['id'] = modelDoc.id;
+          modelData['name'] = modelData['name'] ?? 'Unknown Model';
+          modelData['price'] = modelData['price'] ?? 0.0;
+          modelData['specs'] =
+              modelData['specs'] ?? 'No specifications available';
+          modelData['imageUrl'] = modelData['imageUrl'] ?? '';
+          modelData['colors'] = modelData['colors'] ?? [];
+          modelData['storageOptions'] = modelData['storageOptions'] ?? [];
+          modelData['inStock'] = modelData['inStock'] ?? false;
+          modelData['quantity'] = modelData['quantity'] ?? 0;
+
+          fetchedModels.add(modelData);
+        }
+
+        setState(() {
+          models = fetchedModels;
+        });
+      }
+    } catch (e) {
+      print('Error fetching models by brand: $e');
+    }
   }
 
   @override
@@ -79,42 +107,45 @@ class _PcPageState extends State<PcPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: _fetchModelsByCategory(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No models found'));
-                  } else {
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16.0,
-                          mainAxisSpacing: 16.0,
-                          childAspectRatio: 0.6,
-                        ),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          var model = snapshot.data![index];
-                          return ProductCard(
-                            model: model,
-                            categoryId: model['categoryId'],
-                            brandId: model['brandId'],
-                          );
-                        },
-                      ),
-                    );
-                  }
-                },
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: DropdownButtonFormField<String>(
+                  hint: const Text('Select a Brand'),
+                  value: selectedBrandId.isEmpty ? null : selectedBrandId,
+                  items: brandItems,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedBrandId = newValue!;
+                      fetchModelsByBrand(selectedBrandId);
+                    });
+                  },
+                ),
               ),
+              if (models.isEmpty) const Center(child: Text('No models found')),
+              if (models.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16.0,
+                      mainAxisSpacing: 16.0,
+                      childAspectRatio: 0.6,
+                    ),
+                    itemCount: models.length,
+                    itemBuilder: (context, index) {
+                      var model = models[index];
+                      return ProductCard(
+                        model: model,
+                        categoryId: model['categoryId'],
+                        brandId: model['brandId'],
+                      );
+                    },
+                  ),
+                ),
             ],
           ),
         ),

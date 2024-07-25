@@ -1,7 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +63,7 @@ class _BrandPageState extends State<BrandPage> {
       brandItems = documents
           .map((doc) => DropdownMenuItem<String>(
                 value: doc.id,
-                child: Text(doc['name']),
+                child: Text(doc['name'] ?? 'No name'), // Check if 'name' exists
               ))
           .toList();
     });
@@ -101,7 +98,11 @@ class _BrandPageState extends State<BrandPage> {
   }
 
   Future<void> addBrand() async {
+    print("addBrand called");
     if (selectedCategoryId.isNotEmpty && brandNameController.text.isNotEmpty) {
+      print("selectedCategoryId: $selectedCategoryId");
+      print("brandName: ${brandNameController.text}");
+
       Brand newBrand = Brand(
         name: brandNameController.text,
         imageUrl: 'your_image_url_here',
