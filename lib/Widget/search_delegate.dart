@@ -59,6 +59,7 @@ class ProductSearchDelegate extends SearchDelegate {
                           height: 100,
                           color: Colors.grey,
                           child: const Icon(Icons.image_not_supported),
+          
                         ),
                   title: Text(model['name'] ?? 'Unknown Model'),
                   subtitle: Column(
