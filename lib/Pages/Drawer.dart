@@ -1,12 +1,11 @@
-// ignore_for_file: avoid_print
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:thaw/Widget/search_delegate.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/formfield.dart';
- 
+
 class DrawerFb1 extends StatefulWidget {
   const DrawerFb1({super.key});
 
@@ -23,7 +22,6 @@ class DrawerFb1State extends State<DrawerFb1> {
     super.initState();
     _fetchUserData();
   }
-  
 
   Future<void> _fetchUserData() async {
     try {
@@ -73,7 +71,12 @@ class DrawerFb1State extends State<DrawerFb1> {
             ListTile(
               leading: const Icon(Icons.search, color: Colors.black),
               title: Text('Search', style: formfieldStyle),
-              onTap: () {},
+              onTap: () {
+                showSearch(
+                  context: context,
+                  delegate: ProductSearchDelegate(),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(
@@ -115,5 +118,3 @@ class DrawerFb1State extends State<DrawerFb1> {
     }
   }
 }
-
-
