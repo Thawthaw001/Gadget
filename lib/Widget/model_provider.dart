@@ -61,7 +61,7 @@ class ModelProvider with ChangeNotifier {
       _basket.add(item);
     }
     _quantity = 0;
-        resetSelections();
+    resetSelections();
 
     notifyListeners();
     return true;
@@ -85,11 +85,16 @@ class ModelProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
-    void resetSelections() {
+  void resetSelections() {
     _selectedColor = '';
     _selectedStorage = '';
     _quantity = 0;
+    notifyListeners();
+  }
+
+  // Define the clearBasket method
+  void clearBasket() {
+    _basket.clear();
     notifyListeners();
   }
 }

@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, avoid_print
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thaw/Admin/Brand/brand_panel.dart';
 import 'package:thaw/Admin/Category/category_added_screen.dart';
 import 'package:thaw/Admin/Widget/menu_item.dart';
+import 'package:thaw/Admin/order_display.dart';
 import 'package:thaw/Admin/view_categoryscreen.dart';
-
 import 'Brand/Edit & Delete brand , model/edit_delete_brandmodel.dart';
 
 class DrawerFb2 extends StatefulWidget {
@@ -172,6 +170,31 @@ class _DrawerFb2State extends State<DrawerFb2> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const EditDeleteBrandModel()));
+                          },
+                        ),
+                      ],
+                    ),
+                    ExpansionTile(
+                      title: const Text(
+                        'Orders',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontFamily: "English",
+                            fontWeight: FontWeight.bold),
+                      ),
+                      leading: const Icon(Icons.receipt,
+                          size: 30, color: Colors.black),
+                      children: <Widget>[
+                        MenuItem(
+                          text: 'View Orders',
+                          icon: Icons.view_list,
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const OrderDisplayScreen()));
                           },
                         ),
                       ],

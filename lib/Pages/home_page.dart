@@ -6,7 +6,6 @@ import 'package:thaw/Pages/AccessoriesPage/accessories_page.dart';
 import 'package:thaw/Pages/PcPage/pc_page.dart';
 import 'package:thaw/Pages/TabletPage/tablet_page.dart';
 import 'package:thaw/Pages/basket.dart';
-import 'package:thaw/Pages/calendar.dart';
 import 'package:thaw/Pages/drawer.dart';
 import 'package:thaw/Pages/MobilePage/mobilepage.dart';
 import 'package:thaw/Pages/profilepage.dart';
@@ -190,14 +189,14 @@ class _HomeScreenState extends State<HomeScreen> {
           });
           break;
         case 2:
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CalendarPage()),
-          ).then((_) {
-            setState(() {
-              _selectedIndex = 0; // Reset to home screen index
-            });
-          });
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+          // ).then((_) {
+          //   setState(() {
+          //     _selectedIndex = 0;  
+          //   });
+          // });
           break;
         case 3:
           Navigator.push(
