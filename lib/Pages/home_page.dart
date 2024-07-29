@@ -8,9 +8,7 @@ import 'package:thaw/Pages/TabletPage/tablet_page.dart';
 import 'package:thaw/Pages/basket.dart';
 import 'package:thaw/Pages/drawer.dart';
 import 'package:thaw/Pages/MobilePage/mobilepage.dart';
-import 'package:thaw/Pages/profilepage.dart';
-import 'package:thaw/Pages/seemore.dart';
-import 'package:thaw/Widget/%20brand_product.dart';
+import 'package:thaw/Pages/order_historyscreen.dart';
 import 'package:thaw/Widget/bottom_navbar.dart';
 import 'package:thaw/Widget/brand_data_grid.dart';
 import 'package:thaw/Widget/carousel_slider.dart';
@@ -20,6 +18,8 @@ import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/decoration.dart';
 import 'package:thaw/utils/formfield.dart';
 
+import '../Widget/ brand_product.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -28,6 +28,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String selectedCategoryId = '6ZmnlH6NuZuUktDewEsO';
+  String selectedBrandId = 'BenmKTYANhM7fR66rkNj';
   final auth = Auth();
   final TextEditingController searchController = TextEditingController();
   int _selectedIndex = 0;
@@ -189,25 +191,16 @@ class _HomeScreenState extends State<HomeScreen> {
           });
           break;
         case 2:
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
-          // ).then((_) {
-          //   setState(() {
-          //     _selectedIndex = 0;
-          //   });
-          // });
-          break;
-        case 3:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ProfilePage()),
+            MaterialPageRoute(builder: (context) => const OrderHistoryPage()),
           ).then((_) {
             setState(() {
-              _selectedIndex = 0; // Reset to home screen index
+              _selectedIndex = 0;
             });
           });
           break;
+         
       }
     }
   }
@@ -271,58 +264,27 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('လူကြိုက်များသောထုတ်ကုန်များ', style: formfieldStyle),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const SeeMoreScreen()),
-                  );
-                },
-                child: const Text(
-                  'See More',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "English",
-                    color: Colors.blueAccent,
-                  ),
-                ),
-              ),
+              Text('Popular Products', style: formfieldStyle),
             ],
           ),
           const SizedBox(height: 10),
-          const Flexible(flex: 2, child: RetrieveBrandProducts()),
+          Flexible(
+              flex:3,
+              child: RetrieveBrandProducts(
+                categoryId: selectedCategoryId,
+                brandId: selectedBrandId,
+              )),
           const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('လူကြိုက်များသောအမှတ်တံဆိပ်များ', style: formfieldStyle),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const SeeMoreScreen()),
-                  );
-                },
-                child: const Text(
-                  'See More',
-                  style: TextStyle(
-                    color: Colors.blueAccent,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "English",
-                  ),
-                ),
-              ),
+              Text('Popular Brands', style: formfieldStyle),
             ],
           ),
           const SizedBox(height: 10),
-          const Expanded(
+          Expanded(
             flex: 2,
-            child: Branddatagridview(),
+            child: BrandDataGridView(categoryId: selectedCategoryId),
           ),
         ],
       ),

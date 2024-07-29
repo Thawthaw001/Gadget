@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -21,6 +23,7 @@ class _BrandPageState extends State<BrandPage> {
   List<DropdownMenuItem<String>> categoryItems = [];
   List<DropdownMenuItem<String>> brandItems = [];
   final TextEditingController brandNameController = TextEditingController();
+  final TextEditingController brandImageController = TextEditingController();
   final TextEditingController modelNameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController specsController = TextEditingController();
@@ -28,6 +31,7 @@ class _BrandPageState extends State<BrandPage> {
   List<String> selectedColors = [];
   List<String> selectedStorageOptions = [];
   File? _image;
+  File? _brandImage;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -69,12 +73,16 @@ class _BrandPageState extends State<BrandPage> {
     });
   }
 
-  Future<void> pickImage() async {
+  Future<void> pickImage({required bool isBrandImage}) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        if (isBrandImage) {
+          _brandImage = File(pickedFile.path);
+        } else {
+          _image = File(pickedFile.path);
+        }
       });
     }
   }
@@ -99,13 +107,20 @@ class _BrandPageState extends State<BrandPage> {
 
   Future<void> addBrand() async {
     print("addBrand called");
-    if (selectedCategoryId.isNotEmpty && brandNameController.text.isNotEmpty) {
+    if (selectedCategoryId.isNotEmpty &&
+        brandNameController.text.isNotEmpty) {
       print("selectedCategoryId: $selectedCategoryId");
       print("brandName: ${brandNameController.text}");
 
+      String? imageUrl;
+
+      if (_brandImage != null) {
+        imageUrl = await uploadImageToStorage(_brandImage!);
+      }
+
       Brand newBrand = Brand(
         name: brandNameController.text,
-        imageUrl: 'your_image_url_here',
+        imageUrl: imageUrl ?? 'default_image_url_here',
         quantity: 10,
         colors: [],
         storageOptions: [],
@@ -115,6 +130,9 @@ class _BrandPageState extends State<BrandPage> {
       await BrandService().addBrand(selectedCategoryId, newBrand);
 
       brandNameController.clear();
+      setState(() {
+        _brandImage = null;
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Brand added successfully!')),
@@ -209,6 +227,19 @@ class _BrandPageState extends State<BrandPage> {
                 controller: brandNameController,
                 decoration: const InputDecoration(labelText: 'Brand Name'),
               ),
+              const SizedBox(height: 16.0),
+              GestureDetector(
+                onTap: () => pickImage(isBrandImage: true),
+                child: Container(
+                  color: Colors.grey[200],
+                  height: 150,
+                  width: double.infinity,
+                  child: _brandImage != null
+                      ? Image.file(_brandImage!, fit: BoxFit.cover)
+                      : const Icon(Icons.add_a_photo, size: 50),
+                ),
+              ),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: addBrand,
                 child: const Text('Add Brand'),
@@ -269,7 +300,7 @@ class _BrandPageState extends State<BrandPage> {
               ),
               const SizedBox(height: 16.0),
               GestureDetector(
-                onTap: pickImage,
+                onTap: () => pickImage(isBrandImage: false),
                 child: Container(
                   color: Colors.grey[200],
                   height: 150,

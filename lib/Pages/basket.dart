@@ -1,16 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thaw/Pages/payment.dart';
+import 'package:thaw/Widget/bottom_navbar.dart';
 import 'package:thaw/Widget/model_provider.dart';
- 
+
 class BasketPage extends StatefulWidget {
   const BasketPage({super.key});
 
   @override
-  _BasketPageState createState() => _BasketPageState();
+  BasketPageState createState() => BasketPageState();
 }
 
-class _BasketPageState extends State<BasketPage> {
+class BasketPageState extends State<BasketPage> {
+  int _selectedIndex = 1;
+
+  void _onItemTapped(int index) {
+    if (_selectedIndex == index) return;
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/orderhistory');
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,68 +96,78 @@ class _BasketPageState extends State<BasketPage> {
           );
         },
       ),
-      bottomNavigationBar: Consumer<ModelProvider>(
-        builder: (context, modelProvider, child) {
-          final total = modelProvider.basket.fold<double>(
-            0.0,
-            (sum, item) => sum + item['price'] * item['quantity'],
-          );
-          return Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: const BoxDecoration(
-              color: Colors.white38,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.lightBlueAccent,
-                  blurRadius: 4.0,
-                ),
-              ],
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24.0),
-                topRight: Radius.circular(24.0),
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'SUBTOTAL: $total Ks',
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "English"),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PaymentPage(), // Navigate to PaymentPage
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 50.0, vertical: 15.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24.0),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Consumer<ModelProvider>(
+            builder: (context, modelProvider, child) {
+              final total = modelProvider.basket.fold<double>(
+                0.0,
+                (sum, item) => sum + item['price'] * item['quantity'],
+              );
+              return Container(
+                padding: const EdgeInsets.all(10.0),
+                decoration: const BoxDecoration(
+                  color: Colors.white38,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.purple,
+                      blurRadius: 4.0,
                     ),
-                  ),
-                  child: const Text(
-                    'Buy Now!',
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontFamily: "English",
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red),
-                  ),
+                  ],
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.0),
+                      topRight: Radius.circular(10.0),
+                      bottomLeft: Radius.circular(10.0),
+                      bottomRight: Radius.circular(10.0)),
                 ),
-              ],
-            ),
-          );
-        },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'SUBTOTAL: ${total.toStringAsFixed(0)} Ks',
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "English"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PaymentPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 15.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Buy Now!',
+                        style: TextStyle(
+                            fontSize: 15.0,
+                            fontFamily: "English",
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          AnimatedBottomNavBar(
+            selectedIndex: _selectedIndex,
+            onItemTapped: _onItemTapped,
+          ),
+        ],
       ),
     );
   }

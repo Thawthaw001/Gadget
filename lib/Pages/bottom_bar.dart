@@ -53,10 +53,17 @@ class BottomNavBarState extends State<BottomNavBar> {
           ),
           ElevatedButton.icon(
             onPressed: widget.onAddToCartPressed,
-            icon: const Icon(Icons.shopping_cart, size: 20),
-            label: const Text('Add to Cart'),
+            icon: const Icon(Icons.shopping_cart, size: 20,color:Colors.black),
+            label: const Text(
+              'Add to Cart',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 10,
+                  fontFamily: "English",
+                  fontWeight: FontWeight.normal),
+            ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: Colors.purple,
             ),
           ),
         ],

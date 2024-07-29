@@ -9,12 +9,13 @@ class FullSpecsPage extends StatelessWidget {
   final String categoryId;
   final String brandId;
   final String modelId;
-
+ 
   const FullSpecsPage({
     super.key,
     required this.categoryId,
     required this.brandId,
-    required this.modelId,
+    required this.modelId,   
+      
   });
 
   Future<Map<String, dynamic>> _fetchModelDetails() async {
@@ -64,7 +65,7 @@ class FullSpecsPage extends StatelessWidget {
                       child: Text(
                         '${modelProvider.basket.length}',
                         style:
-                            const TextStyle(color: Colors.white, fontSize: 12),
+                            const TextStyle(color: Colors.purple, fontSize: 12),
                       ),
                     ),
                   ),
@@ -138,7 +139,7 @@ class FullSpecsPage extends StatelessWidget {
                         // Brand's Model Name & Price
                         Container(
                           width: double.infinity,
-                          height: 120,
+                          height: 200,
                           padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -217,8 +218,7 @@ class FullSpecsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16.0),
 
-                        // Color Options & Storage Options
-                        Container(
+                         Container(
                           width: double.infinity,
                           height: 300,
                           padding: const EdgeInsets.only(left: 10),
@@ -330,8 +330,7 @@ class FullSpecsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16.0),
 
-                        // CPU Specifications
-                        Container(
+                         Container(
                           width: double.infinity,
                           height: 300,
                           decoration: BoxDecoration(
@@ -348,12 +347,12 @@ class FullSpecsPage extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10),
                             child: Text(
-                              'CPU: ${model['specs']}',
+                              'Specifications: ${model['specs']}',
                               style: const TextStyle(
-                                  color: Colors.pinkAccent,
+                                  color: Colors.purple,
                                   fontSize: 15,
                                   fontFamily: "English",
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.normal),
                             ),
                           ),
                         ),
@@ -388,8 +387,7 @@ class FullSpecsPage extends StatelessWidget {
                 if (modelProvider.quantity > 0 &&
                     modelProvider.selectedColor.isNotEmpty &&
                     modelProvider.selectedStorage.isNotEmpty) {
-                  // Check if the quantity exceeds available stock
-                  if (modelProvider.quantity > availableQuantity) {
+                   if (modelProvider.quantity > availableQuantity) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
