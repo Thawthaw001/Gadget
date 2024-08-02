@@ -38,7 +38,9 @@ class BasketPageState extends State<BasketPage> {
     return Scaffold(
       backgroundColor: Colors.pink[50],
       appBar: AppBar(
-          title: const Text('Basket'), backgroundColor: Colors.lightBlueAccent),
+        title: const Text('Basket'),
+        backgroundColor: Colors.lightBlueAccent,
+      ),
       body: Consumer<ModelProvider>(
         builder: (context, modelProvider, child) {
           final basket = modelProvider.basket;
@@ -136,7 +138,8 @@ class BasketPageState extends State<BasketPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const PaymentPage(),
+                            builder: (context) =>
+                                PaymentPage(basket: modelProvider.basket),
                           ),
                         );
                       },

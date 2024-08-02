@@ -62,15 +62,15 @@ class _LoginState extends State<Login> {
 
   Future<void> _login() async {
     try {
-       print(
-            "Login User name is ${_emailController.text} and pass is ${_passwordController.text}");
+      print(
+          "Login User name is ${_emailController.text} and pass is ${_passwordController.text}");
       await Auth()
           .signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       )
           .then((_) async {
-       print("Reach here");
+        print("Reach here");
         var loginUser =
             await Auth().getUserRole(_emailController.text.toString());
         print("Login User is $loginUser ");

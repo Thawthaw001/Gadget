@@ -71,4 +71,9 @@ flutter:
         - asset: assets/fonts/Sora/static/Sora-ExtraBold.ttf
           style: italic
           weight: 700
- 
+    - family: Burmese
+      fonts:
+
+        - asset: assets/fonts/Noto_Sans/static/NotoSans_Condensed-Bold.ttf
+          style: italic
+          weight: 700
