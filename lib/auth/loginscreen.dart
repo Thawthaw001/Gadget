@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:thaw/Admin/admin_panel.dart';
-import 'package:thaw/Pages/Forgotpassword.dart';
+import 'package:thaw/Pages/forgetpassword.dart';
 import 'package:thaw/Pages/home_page.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/register.dart';
@@ -200,11 +200,11 @@ class _LoginState extends State<Login> {
                               alignment: Alignment.bottomRight,
                               child: InkWell(
                                 onTap: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) =>
-                                  //             const ForgotPassword()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ForgotPassword()));
                                 },
                                 child: Text('Forget Password',
                                     style: formfieldStyle),

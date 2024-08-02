@@ -18,7 +18,7 @@ class Carousel extends StatelessWidget {
   Widget build(BuildContext context) {
     return CarouselSlider(
       options: CarouselOptions(
-        height: MediaQuery.of(context).size.height * 0.3,
+        height: MediaQuery.of(context).size.height * 2.5,
         enlargeCenterPage: true,
         autoPlay: true,
         aspectRatio: 2.0,
@@ -56,22 +56,13 @@ class Carousel extends StatelessWidget {
                       child: isValidUrl(imageUrl)
                           ? Image.network(
                               imageUrl,
-                              fit: BoxFit.contain,
-                              width: MediaQuery.of(context).size.width * 0.7,
+                              fit: BoxFit.cover,
+                              width: MediaQuery.of(context).size.width * 1.2,
                             )
                           : const Icon(Icons.broken_image, size: 50), // Placeholder for invalid URLs
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    data['name'],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontFamily: "English",
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
+                  
                 ],
               ),
             );

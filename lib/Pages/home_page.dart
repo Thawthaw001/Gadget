@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, unused_element
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thaw/Pages/AccessoriesPage/accessories_page.dart';
@@ -14,7 +12,6 @@ import 'package:thaw/Widget/brand_data_grid.dart';
 import 'package:thaw/Widget/carousel_slider.dart';
 import 'package:thaw/Widget/categoryButton.dart';
 import 'package:thaw/auth/auth_service.dart';
-import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/decoration.dart';
 import 'package:thaw/utils/formfield.dart';
 
@@ -49,132 +46,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return snapshot.docs;
   }
 
-  Future<void> _navigateToMobilePage() async {
-    QuerySnapshot categorySnapshot =
+  Future<List<Map<String, dynamic>>> _fetchCategories() async {
+    QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('categories').get();
-    if (categorySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot categoryDoc = categorySnapshot.docs.first;
-      String categoryId = categoryDoc.id;
-
-      QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
-          .collection('categories/$categoryId/brands')
-          .get();
-      if (brandSnapshot.docs.isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MobilePage(
-              category: 'Mobile',
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('No brands found for selected category.')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No categories found.')),
-      );
-    }
-  }
-
-  Future<void> _navigateToPcPage() async {
-    QuerySnapshot categorySnapshot =
-        await FirebaseFirestore.instance.collection('categories').get();
-    if (categorySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot categoryDoc = categorySnapshot.docs.first;
-      String categoryId = categoryDoc.id;
-
-      QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
-          .collection('categories/$categoryId/brands')
-          .get();
-      if (brandSnapshot.docs.isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PcPage(
-              category: 'PC',
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('No brands found for selected category.')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No categories found.')),
-      );
-    }
-  }
-
-  Future<void> _navigateToTabletPage() async {
-    QuerySnapshot categorySnapshot =
-        await FirebaseFirestore.instance.collection('categories').get();
-    if (categorySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot categoryDoc = categorySnapshot.docs.first;
-      String categoryId = categoryDoc.id;
-
-      QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
-          .collection('categories/$categoryId/brands')
-          .get();
-      if (brandSnapshot.docs.isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Tablet(
-              category: 'Tablet',
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('No brands found for selected category.')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No categories found.')),
-      );
-    }
-  }
-
-  Future<void> _navigateToAccessoriesPage() async {
-    QuerySnapshot categorySnapshot =
-        await FirebaseFirestore.instance.collection('categories').get();
-    if (categorySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot categoryDoc = categorySnapshot.docs.first;
-      String categoryId = categoryDoc.id;
-
-      QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
-          .collection('categories/$categoryId/brands')
-          .get();
-      if (brandSnapshot.docs.isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const AccessoriesPage(
-              category: 'Accessories',
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('No brands found for selected category.')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No categories found.')),
-      );
-    }
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return {
+        'name': data['name'] ?? 'Unnamed Category',
+        'imageUrl': data['imageUrl'] ?? ''
+      };
+    }).toList();
   }
 
   void _onItemTapped(int index) {
@@ -200,7 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           });
           break;
-         
       }
     }
   }
@@ -210,37 +90,45 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: getDecoration(),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CategoryButton(
-                label: 'Mobile',
-                icon: Icons.phone_android,
-                onPressed: () => _navigateToCategoryPage(
-                    'Mobile', const MobilePage(category: 'Mobile')),
-              ),
-              const SizedBox(width: 5),
-              CategoryButton(
-                label: 'PC',
-                icon: Icons.computer,
-                onPressed: () =>
-                    _navigateToCategoryPage('PC', const PcPage(category: 'PC')),
-              ),
-              const SizedBox(width: 5),
-              CategoryButton(
-                label: 'Accessories',
-                icon: Icons.headset,
-                onPressed: () => _navigateToCategoryPage('Accessories',
-                    const AccessoriesPage(category: 'Accessories')),
-              ),
-              const SizedBox(width: 5),
-              CategoryButton(
-                label: 'Tablet',
-                icon: Icons.tablet,
-                onPressed: () => _navigateToCategoryPage(
-                    'Tablet', const Tablet(category: 'Tablet')),
-              ),
-            ],
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: _fetchCategories(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('No categories found'));
+              } else {
+                return SizedBox(
+                  height: 150,
+                  child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        final category = snapshot.data![index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal:12),
+                          child: CategoryButton(
+                            label: category['name'],
+                            imageUrl: category['imageUrl'],
+                            onPressed: () => _navigateToCategoryPage(
+                              category['name']!,
+                              category['name'] == 'Mobile'
+                                  ? const MobilePage(category: 'Mobile')
+                                  : category['name'] == 'PC'
+                                      ? const PcPage(category: 'PC')
+                                      : category['name'] == 'Accessories'
+                                          ? const AccessoriesPage(
+                                              category: 'Accessories')
+                                          : const Tablet(category: 'Tablet'),
+                            ),
+                          ),
+                        );
+                      }),
+                );
+              }
+            },
           ),
           const SizedBox(height: 5),
           FutureBuilder<List<DocumentSnapshot>>(
@@ -269,11 +157,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 10),
           Flexible(
-              flex:3,
-              child: RetrieveBrandProducts(
-                categoryId: selectedCategoryId,
-                brandId: selectedBrandId,
-              )),
+            flex: 3,
+            child: RetrieveBrandProducts(
+              categoryId: selectedCategoryId,
+              brandId: selectedBrandId,
+            ),
+          ),
           const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -306,6 +195,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-gotoLogin(BuildContext context) => Navigator.push(
-    context, MaterialPageRoute(builder: (context) => const Login()));
