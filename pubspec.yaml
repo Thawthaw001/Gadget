@@ -41,6 +41,14 @@ dependencies:
   printing: ^5.11.1
   pdf: ^3.11.0
   path_provider: ^2.1.3
+  flutter_launcher_icons: ^0.13.1
+  url_launcher: ^6.3.0
+ 
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/Generate_a_logo_75f1e5eb-f843-4e71-a763-daf800aa47e0-removebg-preview.png"
   
 dev_dependencies:
   flutter_test:

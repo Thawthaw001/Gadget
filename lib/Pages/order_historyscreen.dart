@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,17 +69,18 @@ class OrderHistoryPageState extends State<OrderHistoryPage> {
                 var order =
                     snapshot.data!.docs[index].data() as Map<String, dynamic>;
                 String orderId = snapshot.data!.docs[index].id;
-                String state = order['state'] ?? 'No state available';
+
                 String township = order['township'] ?? 'No township available';
                 String streetAddress =
                     order['streetAddress'] ?? 'No address available';
                 String phone = order['phone'] ?? 'No phone available';
-                String email = order['email'] ?? 'No email available';
                 List<dynamic> items = order['items'] ?? [];
                 double totalAmount = (order['totalAmount'] != null)
                     ? (order['totalAmount'] as num).toDouble()
                     : 0.0;
-                DateTime orderDate = (order['orderDate'] as Timestamp).toDate();
+                DateTime orderDate = (order['orderDate'] != null)
+                    ? (order['orderDate'] as Timestamp).toDate()
+                    : DateTime.now();
 
                 return Card(
                   margin: const EdgeInsets.all(10),
@@ -90,25 +89,19 @@ class OrderHistoryPageState extends State<OrderHistoryPage> {
                     subtitle: Text(
                         'Total Amount: ${totalAmount.toStringAsFixed(0)} Ks'),
                     children: [
-                      for (var item in items)
-                        ListTile(
-                          leading: item['imageUrl'].isNotEmpty
-                              ? Image.network(
-                                  item['imageUrl'],
-                                  height: 50,
-                                  width: 50,
-                                  fit: BoxFit.cover,
-                                )
-                              : const Icon(Icons.image, size: 50),
-                          title: Text(item['itemName']),
-                          subtitle: Text(
-                              'Quantity: ${item['quantity']}\nPrice: ${item['price'].toStringAsFixed(0)} Ks'),
-                        ),
                       ListTile(
                         title: Text('Order Date: ${orderDate.toLocal()}'),
                         subtitle: Text(
-                            'Address: $state, $township, $streetAddress\nPhone: $phone\nEmail: $email'),
+                            'Address:   $township, $streetAddress\nPhone: $phone'),
                       ),
+                      ...items.map((item) {
+                        var itemName = item['name'] ?? 'No name available';
+                        return ListTile(
+                          title: Text(itemName),
+                          subtitle: Text(
+                              'Quantity: ${item['quantity'] ?? 'N/A'}\nPrice: ${(item['price'] != null) ? (item['price'] as num).toStringAsFixed(0) : 'N/A'} Ks'),
+                        );
+                      }).toList(),
                       TextButton.icon(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         label: const Text('Delete Order',

@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:thaw/Pages/AccessoriesPage/accessories_page.dart';
+import 'package:thaw/Pages/DesktopPage/gamingpc.dart';
 import 'package:thaw/Pages/PcPage/pc_page.dart';
 import 'package:thaw/Pages/TabletPage/tablet_page.dart';
 import 'package:thaw/Pages/basket.dart';
 import 'package:thaw/Pages/drawer.dart';
 import 'package:thaw/Pages/MobilePage/mobilepage.dart';
 import 'package:thaw/Pages/order_historyscreen.dart';
+import 'package:thaw/Widget/%20brand_product.dart';
 import 'package:thaw/Widget/bottom_navbar.dart';
 import 'package:thaw/Widget/brand_data_grid.dart';
 import 'package:thaw/Widget/carousel_slider.dart';
@@ -14,8 +15,6 @@ import 'package:thaw/Widget/categoryButton.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/utils/decoration.dart';
 import 'package:thaw/utils/formfield.dart';
-
-import '../Widget/ brand_product.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,8 +24,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String selectedCategoryId = '6ZmnlH6NuZuUktDewEsO';
-  String selectedBrandId = 'BenmKTYANhM7fR66rkNj';
+  String selectedCategoryId = 'bZXVXSaH8E5CigKeRKi0';
+  String selectedBrandId = 'eRbiQautunEdPBWGykvS';
   final auth = Auth();
   final TextEditingController searchController = TextEditingController();
   int _selectedIndex = 0;
@@ -67,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (context) => const BasketPage()),
           ).then((_) {
             setState(() {
-              _selectedIndex = 0; // Reset to home screen index
+              _selectedIndex = 0;
             });
           });
           break;
@@ -108,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final category = snapshot.data![index];
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal:12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: CategoryButton(
                             label: category['name'],
                             imageUrl: category['imageUrl'],
@@ -118,9 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? const MobilePage(category: 'Mobile')
                                   : category['name'] == 'PC'
                                       ? const PcPage(category: 'PC')
-                                      : category['name'] == 'Accessories'
-                                          ? const AccessoriesPage(
-                                              category: 'Accessories')
+                                      : category['name'] == 'GamingPC'
+                                          ? const GamingPCPage(
+                                              category: 'GamingPC')
                                           : const Tablet(category: 'Tablet'),
                             ),
                           ),
@@ -143,7 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
               } else {
                 return Flexible(
                   flex: 2,
-                  child: Carousel(docs: snapshot.data!),
+                  child: Carousel(
+                    docs: snapshot.data!,
+                    assetImages: [],
+                  ),
                 );
               }
             },
@@ -182,15 +184,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Categories', style: formfieldStyle),
-      ),
-      drawer: const DrawerFb1(),
-      body: _selectedIndex == 0 ? _buildHomeContent() : Container(),
-      bottomNavigationBar: AnimatedBottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
+    return WillPopScope(
+      onWillPop: () async {
+        final shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Exit App'),
+            content: const Text('Do you want to exit the app?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        );
+        return shouldPop ?? false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Categories', style: formfieldStyle),
+        ),
+        drawer: const DrawerFb1(),
+        body: _selectedIndex == 0 ? _buildHomeContent() : Container(),
+        bottomNavigationBar: AnimatedBottomNavBar(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
+        ),
       ),
     );
   }

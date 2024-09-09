@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class ModelProvider with ChangeNotifier {
@@ -36,40 +35,39 @@ class ModelProvider with ChangeNotifier {
     }
   }
 
-bool addToCart(String modelId, String imageUrl, String name, double price,
-    String selectedColor, String selectedStorage, int quantity) {
-  if (_quantity <= 0 || _selectedColor.isEmpty || _selectedStorage.isEmpty) {
-    return false; 
+  bool addToCart(String modelId, String imageUrl, String name, double price,
+      String selectedColor, String selectedStorage, int quantity) {
+    if (_quantity <= 0 || _selectedColor.isEmpty || _selectedStorage.isEmpty) {
+      return false;
+    }
+    final existingItemIndex = _basket.indexWhere((item) =>
+        item['modelId'] == modelId &&
+        item['color'] == selectedColor &&
+        item['storage'] == selectedStorage);
+
+    if (existingItemIndex != -1) {
+      _basket[existingItemIndex]['quantity'] =
+          (_basket[existingItemIndex]['quantity'] as int) + _quantity;
+    } else {
+      final item = {
+        'modelId': modelId,
+        'imageUrl': imageUrl,
+        'name': name,
+        'price': price,
+        'color': selectedColor,
+        'storage': selectedStorage,
+        'quantity': _quantity,
+      };
+      _basket.add(item);
+    }
+    _quantity = 0;
+    resetSelections();
+
+    notifyListeners();
+    return true;
   }
-  final existingItemIndex = _basket.indexWhere((item) =>
-      item['modelId'] == modelId &&
-      item['color'] == selectedColor &&
-      item['storage'] == selectedStorage);
 
-  if (existingItemIndex != -1) {
-    _basket[existingItemIndex]['quantity'] =
-        (_basket[existingItemIndex]['quantity'] as int) + _quantity;
-  } else {
-    final item = {
-      'modelId': modelId,
-      'imageUrl': imageUrl,
-      'name': name,
-      'price': price,
-      'color': selectedColor,
-      'storage': selectedStorage,
-      'quantity': _quantity,
-    };
-    _basket.add(item);
-  }
-  _quantity = 0;
-  resetSelections();
-
-  notifyListeners();
-  return true;
-}
-
-
-  void removeFromCart(String modelId,String color,String storage){
+  void removeFromCart(String modelId, String color, String storage) {
     _basket.removeWhere((item) =>
         item['modelId'] == modelId &&
         item['color'] == color &&
@@ -100,3 +98,4 @@ bool addToCart(String modelId, String imageUrl, String name, double price,
     notifyListeners();
   }
 }
+ 

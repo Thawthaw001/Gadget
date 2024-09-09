@@ -14,14 +14,24 @@ class BrandService {
     await brandRef.set(brand.toMap());
   }
 
-  Future<void> addModel(String categoryId, String brandId, Model model) async {
-    final modelRef = _firestore
+  // Future<void> addModel(String categoryId, String brandId, Model model) async {
+  //   final modelRef = _firestore
+  //       .collection('categories')
+  //       .doc(categoryId)
+  //       .collection('brands')
+  //       .doc(brandId)
+  //       .collection('models')
+  //       .doc();
+  //   await modelRef.set(model.toMap());
+  // }
+   Future<void> addModel(
+      String categoryId, String brandId, Model model) async {
+    await FirebaseFirestore.instance
         .collection('categories')
         .doc(categoryId)
         .collection('brands')
         .doc(brandId)
         .collection('models')
-        .doc();
-    await modelRef.set(model.toMap());
+        .add(model.toMap()); // Ensure toMap handles the imageUrls list
   }
 }

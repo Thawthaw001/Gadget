@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thaw/Admin/Brand/brand_panel.dart';
 import 'package:thaw/Pages/basket.dart';
+import 'package:thaw/Pages/forgetpassword.dart';
 import 'package:thaw/Pages/home_page.dart';
 import 'package:thaw/Pages/order_historyscreen.dart';
 import 'package:thaw/Widget/model_provider.dart';
@@ -36,7 +37,20 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             primarySwatch: Colors.blueGrey, brightness: Brightness.light),
-        darkTheme: ThemeData(brightness: Brightness.dark),
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600, // Adjust weight for thicker text
+            ),
+            bodyMedium: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600, // Adjust weight for thicker text
+            ),
+            // You can adjust other text styles similarly
+          ),
+        ),
         home: SplashScreen(),
         supportedLocales: const [
           Locale('en', 'US'), // Add other supported locales here
@@ -47,8 +61,8 @@ class MyApp extends StatelessWidget {
           "/home": (context) => const HomeScreen(),
           "/brand": (context) => const BrandPage(),
           "/basket": (context) => const BasketPage(),
-          "/orderhistory": (context) => const OrderHistoryPage()
-          // "/forgotpassword": (context) => const ForgotPassword(),
+          "/orderhistory": (context) => const OrderHistoryPage(),
+          "/forgotpassword": (context) => ForgotPassword(),
         },
       ),
     );

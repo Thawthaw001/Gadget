@@ -1,7 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:thaw/Admin/admin_drawer.dart';
+import 'package:thaw/Admin/order_display.dart';
 import 'package:thaw/auth/loginscreen.dart';
 import 'package:thaw/utils/decoration.dart';
 import 'package:thaw/utils/formfield.dart';
@@ -27,9 +26,32 @@ class _AdminPanelState extends State<AdminPanel> {
     );
   }
 
+  Future<bool> _onWillPop() async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Exit App'),
+            content: const Text('Are you sure you want to exit the app?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
         appBar: AppBar(
           title: Text('Gadget Max Admin Dashboard', style: formfieldStyle),
           actions: [
@@ -43,7 +65,10 @@ class _AdminPanelState extends State<AdminPanel> {
         drawer: const DrawerFb2(),
         body: Container(
           decoration: getDecoration(),
-        ));
+          child: const OrderDisplayScreen(),
+        ),
+      ),
+    );
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:math'; // Import this for random selection
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thaw/Pages/full_specs.dart';
@@ -38,8 +40,18 @@ class RetrieveBrandProducts extends StatelessWidget {
               itemBuilder: (context, index) {
                 var product =
                     snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                String imageUrl =
-                    product['imageUrl'] ?? 'assets/images/default.png';
+
+                // Select a random image from imageUrls
+                String imageUrl;
+                if (product['imageUrls'] != null &&
+                    product['imageUrls'].isNotEmpty) {
+                  Random random = Random();
+                  int randomIndex = random.nextInt(product['imageUrls'].length);
+                  imageUrl = product['imageUrls'][randomIndex];
+                } else {
+                  imageUrl = 'assets/images/default.png';
+                }
+
                 String name = product['name'] ?? 'No name available';
                 String price =
                     product['price']?.toString() ?? 'Price not available';
@@ -52,7 +64,7 @@ class RetrieveBrandProducts extends StatelessWidget {
                         builder: (context) => FullSpecsPage(
                           categoryId: categoryId,
                           brandId: brandId,
-                          modelId: snapshot.data!.docs[index].id,
+                          modelId: snapshot.data!.docs[index].id, categoryName: 'Accessories',
                         ),
                       ),
                     );

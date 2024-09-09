@@ -9,10 +9,10 @@ import 'package:thaw/utils/sharepreferences.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen> {
   String? userRole;
   @override
   void initState() {
@@ -20,65 +20,32 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkUserStatus();
   }
 
-  // Future<void> _checkUserStatus() async {
-  //   await Future.delayed(const Duration(seconds: 2));
-
-  //   String? role = await SharePreferenceService.getUseRole();
-
-  //   print("Sharepref role is $role");
-  //   setState(() {
-  //     userRole = role;
-  //   });
-
-  //   if (userRole != null && userRole!.isNotEmpty) {
-  //     print("Splash Scren in role is $userRole");
-  //     if (userRole!.contains("admin")) {
-  //       print("User role form splash screen is $userRole");
-  //       Navigator.of(context).pushReplacement(
-  //         MaterialPageRoute(builder: (context) => const AdminPanel()),
-  //       );
-  //     } else {
-  //       print("Else blok User role form splash screen is $userRole");
-
-  //       Navigator.of(context).pushReplacement(
-  //         MaterialPageRoute(builder: (context) => const HomeScreen()),
-  //       );
-  //     }
-  //   } else {
-  //     print("Login Page Screen");
-  //     Navigator.of(context).pushReplacement(
-  //       MaterialPageRoute(builder: (context) => const Login()),
-  //     );
-  //   }
-  // }
-
   Future<void> _checkUserStatus() async {
-  await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
-  String? role = await SharePreferenceService.getUseRole();
+    String? role = await SharePreferenceService.getUseRole();
 
-  print("Sharepref role is $role");
+    print("Sharepref role is $role");
 
-  if (role != null && role.isNotEmpty) {
-    if (role.contains("admin")) {
-      print("User role from splash screen is admin");
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AdminPanel()),
-      );
+    if (role != null && role.isNotEmpty) {
+      if (role.contains("admin")) {
+        print("User role from splash screen is admin");
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AdminPanel()),
+        );
+      } else {
+        print("User role from splash screen is not admin");
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
     } else {
-      print("User role from splash screen is not admin");
+      print("No user role found, redirecting to login page");
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const Login()),
       );
     }
-  } else {
-    print("No user role found, redirecting to login page");
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const Login()),
-    );
   }
-}
-
 
   @override
   Widget build(BuildContext context) {

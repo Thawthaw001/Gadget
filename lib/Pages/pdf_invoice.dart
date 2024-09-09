@@ -4,7 +4,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-Future<void> generateInvoice(Map<String, dynamic> orderData) async {
+Future<void> generateInvoice(
+    Map<String, dynamic> orderData, File? transactionImage) async {
   try {
     print('Generating Invoice with Order Data: $orderData'); // Debug line
 
@@ -39,7 +40,6 @@ Future<void> generateInvoice(Map<String, dynamic> orderData) async {
               pw.Text('Name: ${orderData['userName']}'),
               pw.Text('Email: ${orderData['userEmail']}'),
               pw.Text('Phone: ${orderData['phone']}'),
-              pw.Text('State: ${orderData['state']}'),
               pw.Text('Township: ${orderData['township']}'),
               pw.Text('Street Address: ${orderData['streetAddress']}'),
               pw.Text('Additional Info: ${orderData['additionalInfo']}'),
@@ -98,4 +98,3 @@ Future<void> generateInvoice(Map<String, dynamic> orderData) async {
     print('Error generating invoice: $e');
   }
 }
- 

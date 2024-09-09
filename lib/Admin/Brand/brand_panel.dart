@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,10 +12,10 @@ class BrandPage extends StatefulWidget {
   const BrandPage({super.key});
 
   @override
-  _BrandPageState createState() => _BrandPageState();
+  BrandPageState createState() => BrandPageState();
 }
 
-class _BrandPageState extends State<BrandPage> {
+class BrandPageState extends State<BrandPage> {
   String selectedCategoryId = '';
   String selectedBrandId = '';
   List<DropdownMenuItem<String>> categoryItems = [];
@@ -30,9 +28,11 @@ class _BrandPageState extends State<BrandPage> {
   final TextEditingController quantityController = TextEditingController();
   List<String> selectedColors = [];
   List<String> selectedStorageOptions = [];
-  File? _image;
+  List<File>? _images = [];
   File? _brandImage;
   final ImagePicker _picker = ImagePicker();
+  bool isBrandInStock = true;
+  bool isModelInStock = true;
 
   @override
   void initState() {
@@ -67,7 +67,7 @@ class _BrandPageState extends State<BrandPage> {
       brandItems = documents
           .map((doc) => DropdownMenuItem<String>(
                 value: doc.id,
-                child: Text(doc['name'] ?? 'No name'), // Check if 'name' exists
+                child: Text(doc['name'] ?? 'No name'),
               ))
           .toList();
     });
@@ -81,8 +81,18 @@ class _BrandPageState extends State<BrandPage> {
         if (isBrandImage) {
           _brandImage = File(pickedFile.path);
         } else {
-          _image = File(pickedFile.path);
+          _images = [File(pickedFile.path)];
         }
+      });
+    }
+  }
+
+  Future<void> pickMultipleImages() async {
+    final List<XFile>? pickedFiles = await _picker.pickMultiImage();
+
+    if (pickedFiles != null) {
+      setState(() {
+        _images = pickedFiles.map((file) => File(file.path)).toList();
       });
     }
   }
@@ -105,13 +115,21 @@ class _BrandPageState extends State<BrandPage> {
     }
   }
 
-  Future<void> addBrand() async {
-    print("addBrand called");
-    if (selectedCategoryId.isNotEmpty &&
-        brandNameController.text.isNotEmpty) {
-      print("selectedCategoryId: $selectedCategoryId");
-      print("brandName: ${brandNameController.text}");
+  Future<List<String>> uploadImagesToStorage(List<File> imageFiles) async {
+    List<String> downloadUrls = [];
 
+    for (var imageFile in imageFiles) {
+      String? downloadUrl = await uploadImageToStorage(imageFile);
+      if (downloadUrl != null) {
+        downloadUrls.add(downloadUrl);
+      }
+    }
+
+    return downloadUrls;
+  }
+
+  Future<void> addBrand() async {
+    if (selectedCategoryId.isNotEmpty && brandNameController.text.isNotEmpty) {
       String? imageUrl;
 
       if (_brandImage != null) {
@@ -124,7 +142,7 @@ class _BrandPageState extends State<BrandPage> {
         quantity: 10,
         colors: [],
         storageOptions: [],
-        inStock: true,
+        inStock: isBrandInStock, // Include stock status
       );
 
       await BrandService().addBrand(selectedCategoryId, newBrand);
@@ -148,32 +166,27 @@ class _BrandPageState extends State<BrandPage> {
   }
 
   void addModel() async {
-    String modelName = modelNameController.text.trim();
-    double price = double.parse(priceController.text.trim());
-    String specs = specsController.text.trim();
-    int quantity = int.parse(quantityController.text.trim());
-
     if (selectedCategoryId.isNotEmpty &&
         selectedBrandId.isNotEmpty &&
-        modelName.isNotEmpty &&
-        price.toString().isNotEmpty &&
-        specs.isNotEmpty &&
-        quantityController.text.isNotEmpty) {
-      String? imageUrl;
+        modelNameController.text.trim().isNotEmpty &&
+        priceController.text.trim().isNotEmpty &&
+        specsController.text.trim().isNotEmpty &&
+        quantityController.text.trim().isNotEmpty) {
+      List<String> imageUrls = [];
 
-      if (_image != null) {
-        imageUrl = await uploadImageToStorage(_image!);
+      if (_images != null && _images!.isNotEmpty) {
+        imageUrls = await uploadImagesToStorage(_images!);
       }
 
       Model newModel = Model(
-        name: modelName,
-        price: price,
-        specs: specs,
-        imageUrl: imageUrl ?? 'default_image_url_here',
+        name: modelNameController.text.trim(),
+        price: double.parse(priceController.text.trim()),
+        specs: specsController.text.trim(),
+        imageUrls: imageUrls,
         colors: selectedColors,
         storageOptions: selectedStorageOptions,
-        quantity: quantity,
-        inStock: true,
+        quantity: int.parse(quantityController.text.trim()),
+        inStock: isModelInStock, // Include stock status
       );
 
       await BrandService()
@@ -184,7 +197,7 @@ class _BrandPageState extends State<BrandPage> {
       specsController.clear();
       quantityController.clear();
       setState(() {
-        _image = null;
+        _images = [];
         selectedColors = [];
         selectedStorageOptions = [];
       });
@@ -240,6 +253,20 @@ class _BrandPageState extends State<BrandPage> {
                 ),
               ),
               const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  const Text('In Stock'),
+                  Switch(
+                    value: isBrandInStock,
+                    onChanged: (bool value) {
+                      setState(() {
+                        isBrandInStock = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: addBrand,
                 child: const Text('Add Brand'),
@@ -281,36 +308,62 @@ class _BrandPageState extends State<BrandPage> {
               const SizedBox(height: 16.0),
               CustomTagInput(
                 tags: selectedColors,
+                labelText: 'Colors',
+                hintText: 'Enter a color and press enter',
                 onTagsChanged: (tags) {
                   setState(() {
                     selectedColors = tags;
                   });
                 },
-                hintText: 'Add Colors',
               ),
               const SizedBox(height: 16.0),
               CustomTagInput(
                 tags: selectedStorageOptions,
+                labelText: 'Storage Options',
+                hintText: 'Enter a storage option and press enter',
                 onTagsChanged: (tags) {
                   setState(() {
                     selectedStorageOptions = tags;
                   });
                 },
-                hintText: 'Add Storage Options',
               ),
               const SizedBox(height: 16.0),
               GestureDetector(
-                onTap: () => pickImage(isBrandImage: false),
+                onTap: pickMultipleImages,
                 child: Container(
                   color: Colors.grey[200],
                   height: 150,
                   width: double.infinity,
-                  child: _image != null
-                      ? Image.file(_image!, fit: BoxFit.cover)
+                  child: _images != null && _images!.isNotEmpty
+                      ? ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _images!.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.file(_images![index],
+                                  fit: BoxFit.cover),
+                            );
+                          },
+                        )
                       : const Icon(Icons.add_a_photo, size: 50),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  const Text('In Stock'),
+                  Switch(
+                    value: isModelInStock,
+                    onChanged: (bool value) {
+                      setState(() {
+                        isModelInStock = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: addModel,
                 child: const Text('Add Model'),

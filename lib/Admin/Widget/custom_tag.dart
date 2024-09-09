@@ -11,7 +11,7 @@ class CustomTagInput extends StatefulWidget {
     super.key,
     required this.tags,
     required this.onTagsChanged,
-    this.hintText = '',
+    this.hintText = '', required String labelText,
   });
 
   @override

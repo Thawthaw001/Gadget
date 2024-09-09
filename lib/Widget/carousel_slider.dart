@@ -6,6 +6,7 @@ class Carousel extends StatelessWidget {
   const Carousel({
     super.key,
     required this.docs,
+    required List<String> assetImages,
   });
 
   final List<DocumentSnapshot<Object?>> docs;
@@ -57,12 +58,12 @@ class Carousel extends StatelessWidget {
                           ? Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
-                              width: MediaQuery.of(context).size.width * 1.2,
+                              width: MediaQuery.of(context).size.width * 0.75,
                             )
-                          : const Icon(Icons.broken_image, size: 50), // Placeholder for invalid URLs
+                          : const Icon(Icons.broken_image,
+                              size: 50), // Placeholder for invalid URLs
                     ),
                   ),
-                  
                 ],
               ),
             );

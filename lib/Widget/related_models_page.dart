@@ -38,21 +38,36 @@ class RelatedModelsPage extends StatelessWidget {
                     snapshot.data!.docs[index].data() as Map<String, dynamic>;
                 String modelId = snapshot.data!.docs[index].id;
                 String modelName = model['name'] ?? 'No name available';
-                String imageUrl = model['imageUrl'] ?? 'No Image available';
-                double price = model['price'] ?? 'No Price available';
-                int quantity = model['quantity'] ?? 'No Quantity available';
+                List<String> imageUrls =
+                    List<String>.from(model['imageUrls'] ?? []);
+                double price = model['price'] ?? 0.0;
+                int quantity = model['quantity'] ?? 0;
 
                 return ListTile(
-                  leading: imageUrl != 'No Image available'
-                      ? Image.network(imageUrl,
-                          width: 50, height: 50, fit: BoxFit.cover)
-                      : const Icon(Icons.image_not_supported, size: 50),
                   title: Text(modelName),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Price: $price Ks'),
                       Text('Quantity: $quantity'),
+                      SizedBox(
+                        height: 100,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: imageUrls.length,
+                          itemBuilder: (context, imageIndex) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Image.network(
+                                imageUrls[imageIndex],
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                   onTap: () {
@@ -62,7 +77,7 @@ class RelatedModelsPage extends StatelessWidget {
                         builder: (context) => FullSpecsPage(
                           categoryId: categoryId,
                           brandId: brandId,
-                          modelId: modelId,
+                          modelId: modelId, categoryName: 'Accessories',
                         ),
                       ),
                     );

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:thaw/Pages/contactus.dart';
 import 'package:thaw/Widget/search_delegate.dart';
 import 'package:thaw/auth/auth_service.dart';
 import 'package:thaw/auth/loginscreen.dart';
@@ -80,11 +81,14 @@ class DrawerFb1State extends State<DrawerFb1> {
             ),
             ListTile(
               leading: const Icon(
-                Icons.settings,
+                Icons.contact_page,
                 color: Colors.black,
               ),
-              title: Text('Settings', style: formfieldStyle),
-              onTap: () {},
+              title: Text('Contact US', style: formfieldStyle),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const ContactUS()));
+              },
             ),
             ListTile(
               leading: const Icon(

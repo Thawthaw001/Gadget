@@ -48,18 +48,37 @@ class ProductSearchDelegate extends SearchDelegate {
               var model = doc.data() as Map<String, dynamic>;
               var categoryId = doc.reference.parent.parent!.parent.parent!.id;
               var brandId = doc.reference.parent.parent!.id;
+
+              List<String> imageUrls =
+                  List<String>.from(model['imageUrls'] ?? []);
+
               return Card(
                 margin: const EdgeInsets.all(10.0),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(10.0),
-                  leading: model['imageUrl'] != null
-                      ? Image.network(model['imageUrl'], fit: BoxFit.contain)
+                  leading: imageUrls.isNotEmpty
+                      ? SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: imageUrls.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 4.0),
+                                child: Image.network(
+                                  imageUrls[index],
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            },
+                          ),
+                        )
                       : Container(
                           width: 100,
                           height: 100,
                           color: Colors.grey,
                           child: const Icon(Icons.image_not_supported),
-          
                         ),
                   title: Text(model['name'] ?? 'Unknown Model'),
                   subtitle: Column(
@@ -75,7 +94,7 @@ class ProductSearchDelegate extends SearchDelegate {
                         builder: (context) => FullSpecsPage(
                           categoryId: categoryId,
                           brandId: brandId,
-                          modelId: doc.id,
+                          modelId: doc.id, categoryName: 'Accessories',
                         ),
                       ),
                     );

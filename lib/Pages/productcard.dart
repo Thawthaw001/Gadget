@@ -1,3 +1,7 @@
+// import 'dart:math';  // Import this for random selection
+
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:thaw/Pages/full_specs.dart';
 
@@ -15,6 +19,14 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Select a random image from the list of imageUrls
+    String? selectedImageUrl;
+    if (model['imageUrls'] != null && model['imageUrls'].isNotEmpty) {
+      Random random = Random();
+      int randomIndex = random.nextInt(model['imageUrls'].length);
+      selectedImageUrl = model['imageUrls'][randomIndex];
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Card(
@@ -25,7 +37,7 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: model['imageUrl'] != null && model['imageUrl'].isNotEmpty
+                child: selectedImageUrl != null && selectedImageUrl.isNotEmpty
                     ? ClipRRect(
                         borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(16.0)),
@@ -33,7 +45,7 @@ class ProductCard extends StatelessWidget {
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                           child: Image.network(
-                            model['imageUrl'],
+                            selectedImageUrl,
                             fit: BoxFit.cover,
                             width: double.infinity,
                             height: constraints.maxHeight * 0.5,
@@ -99,7 +111,7 @@ class ProductCard extends StatelessWidget {
                               builder: (context) => FullSpecsPage(
                                 categoryId: categoryId,
                                 brandId: brandId,
-                                modelId: model['id'],
+                                modelId: model['id'], categoryName: 'Aceesories',
                               ),
                             ),
                           );
@@ -118,11 +130,11 @@ class ProductCard extends StatelessWidget {
                               width: 20.0,
                               height: 20.0,
                             ),
-                            const SizedBox(width: 4.0),
+                            const SizedBox(width:2.0),
                             const Text(
                               'Full Specs',
                               style: TextStyle(
-                                  fontSize: 14.0,
+                                  fontSize:12.0,
                                   fontFamily: "English",
                                   fontWeight: FontWeight.bold),
                             ),

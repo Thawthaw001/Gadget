@@ -112,7 +112,7 @@ class _LoginState extends State<Login> {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: SizedBox(
-                width: 600,
+                width: 500,
                 height: MediaQuery.of(context).size.height / 1.8,
                 child: SingleChildScrollView(
                   child: Form(
@@ -254,28 +254,6 @@ class _LoginState extends State<Login> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 13),
-                        Align(
-                          alignment: Alignment.center,
-                          child: ElevatedButton.icon(
-                              onPressed: _loginWithGoogle,
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      30.0), // Makes it rounded
-                                ),
-                                backgroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 20), // Button background color
-                              ),
-                              icon: const FaIcon(
-                                FontAwesomeIcons.squareGooglePlus,
-                                size: 16,
-                                color: Colors.lightBlueAccent,
-                              ),
-                              label: Text('Google', style: formfieldStyle)),
-                        ),
                       ],
                     ),
                   ),
@@ -288,3 +266,4 @@ class _LoginState extends State<Login> {
     );
   }
 }
+ 

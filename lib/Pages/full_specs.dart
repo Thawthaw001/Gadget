@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:thaw/Pages/basket.dart';
 import 'package:thaw/Pages/bottom_bar.dart';
 import 'package:thaw/Widget/model_provider.dart';
@@ -9,13 +10,14 @@ class FullSpecsPage extends StatelessWidget {
   final String categoryId;
   final String brandId;
   final String modelId;
- 
+  final String categoryName; // Add this parameter
+
   const FullSpecsPage({
     super.key,
     required this.categoryId,
     required this.brandId,
-    required this.modelId,   
-      
+    required this.modelId,
+    required this.categoryName, // Initialize this parameter
   });
 
   Future<Map<String, dynamic>> _fetchModelDetails() async {
@@ -87,6 +89,10 @@ class FullSpecsPage extends StatelessWidget {
               return const Center(child: Text('No data found'));
             } else {
               var model = snapshot.data!;
+              var imageUrls = (model['imageUrls'] as List<dynamic>?)
+                      ?.map((e) => e.toString())
+                      .toList() ??
+                  [];
               var colors = (model['colors'] as List<dynamic>?)
                       ?.map((e) => e.toString())
                       .toList() ??
@@ -103,43 +109,67 @@ class FullSpecsPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Image Section
-                        Container(
-                          width: double.infinity,
-                          height: 500,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                        // Image Slideshow Section
+                        if (imageUrls.isNotEmpty)
+                          Container(
+                            width: double.infinity,
+                            height: 300,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: CarouselSlider(
+                              options: CarouselOptions(
+                                height: 300,
+                                autoPlay: true,
+                                enlargeCenterPage: true,
+                                aspectRatio: 16 / 9,
+                                viewportFraction: 0.8,
                               ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              model['imageUrl'] ?? '',
-                              fit: BoxFit.cover,
-                              height: 250,
-                              width: 300,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                color: Colors.grey,
-                                child: const Icon(Icons.image_not_supported,
-                                    size: 100),
-                              ),
+                              items: imageUrls.map((url) {
+                                return Builder(
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 5.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.network(
+                                          url,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Container(
+                                            color: Colors.grey,
+                                            child: const Icon(
+                                                Icons.image_not_supported,
+                                                size: 100),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }).toList(),
                             ),
                           ),
-                        ),
                         const SizedBox(height: 16.0),
 
                         // Brand's Model Name & Price
                         Container(
                           width: double.infinity,
-                          height: 200,
+                          height: 100,
                           padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -158,7 +188,7 @@ class FullSpecsPage extends StatelessWidget {
                               Text(
                                 model['name'] ?? 'Unknown Model',
                                 style: const TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -166,7 +196,7 @@ class FullSpecsPage extends StatelessWidget {
                               Text(
                                 '${model['price'] ?? 'Kyats'} Ks',
                                 style: const TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 15,
                                     color: Colors.red,
                                     fontWeight: FontWeight.bold),
                               ),
@@ -218,7 +248,8 @@ class FullSpecsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16.0),
 
-                         Container(
+                        // Color and Storage Options
+                        Container(
                           width: double.infinity,
                           height: 300,
                           padding: const EdgeInsets.only(left: 10),
@@ -330,9 +361,10 @@ class FullSpecsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16.0),
 
-                         Container(
+                        // Specifications Section
+                        Container(
                           width: double.infinity,
-                          height: 300,
+                          height: 450,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
@@ -349,7 +381,7 @@ class FullSpecsPage extends StatelessWidget {
                             child: Text(
                               'Specifications: ${model['specs']}',
                               style: const TextStyle(
-                                  color: Colors.purple,
+                                  color: Colors.black,
                                   fontSize: 15,
                                   fontFamily: "English",
                                   fontWeight: FontWeight.normal),
@@ -387,7 +419,7 @@ class FullSpecsPage extends StatelessWidget {
                 if (modelProvider.quantity > 0 &&
                     modelProvider.selectedColor.isNotEmpty &&
                     modelProvider.selectedStorage.isNotEmpty) {
-                   if (modelProvider.quantity > availableQuantity) {
+                  if (modelProvider.quantity > availableQuantity) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
@@ -438,3 +470,4 @@ class FullSpecsPage extends StatelessWidget {
     );
   }
 }
+ 

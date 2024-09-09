@@ -23,7 +23,7 @@ class BottomNavBarState extends State<BottomNavBar> {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: Colors.red,
+                backgroundColor: Colors.black,
                 child: IconButton(
                   icon: const Icon(Icons.remove, color: Colors.white),
                   onPressed: modelProvider.decrementQuantity,
@@ -33,7 +33,7 @@ class BottomNavBarState extends State<BottomNavBar> {
               Text('${modelProvider.quantity}'),
               const SizedBox(width: 10),
               CircleAvatar(
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.red,
                 child: IconButton(
                   icon: const Icon(Icons.add, color: Colors.white),
                   onPressed: () {
@@ -57,13 +57,13 @@ class BottomNavBarState extends State<BottomNavBar> {
             label: const Text(
               'Add to Cart',
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 10,
                   fontFamily: "English",
                   fontWeight: FontWeight.normal),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple,
+              backgroundColor: Colors.orange,
             ),
           ),
         ],

@@ -35,61 +35,100 @@ class BasketPageState extends State<BasketPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.pink[50],
+      backgroundColor: isDarkMode ? Colors.black : Colors.pink[50],
       appBar: AppBar(
         title: const Text('Basket'),
-        backgroundColor: Colors.lightBlueAccent,
+        backgroundColor: isDarkMode ? Colors.grey[850] : Colors.lightBlueAccent,
       ),
       body: Consumer<ModelProvider>(
         builder: (context, modelProvider, child) {
           final basket = modelProvider.basket;
+
+          if (basket.isEmpty) {
+            return const Center(
+              child: Text(
+                'Your basket is empty!',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            );
+          }
+
           return ListView.builder(
             itemCount: basket.length,
             itemBuilder: (context, index) {
               final item = basket[index];
+
               return Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Card(
-                  color: Colors.black,
+                  color: isDarkMode ? Colors.grey[800] : Colors.purple,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
                   ),
-                  child: ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(item['imageUrl'],
-                          width: 50, height: 50, fit: BoxFit.cover),
-                    ),
-                    title: Text(
-                      item['name'],
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          fontFamily: "English"),
-                    ),
-                    subtitle: Column(
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Price: ${item['price']} Ks',
-                            style: const TextStyle(color: Colors.white)),
-                        Text('Color: ${item['color']}',
-                            style: const TextStyle(color: Colors.white)),
-                        Text('Storage: ${item['storage']}',
-                            style: const TextStyle(color: Colors.white)),
-                        Text('Quantity: ${item['quantity']}',
-                            style: const TextStyle(color: Colors.white)),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item['name'] ?? 'No name available',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    fontFamily: "English"),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Price: ${item['price']} Ks',
+                                style: TextStyle(
+                                    color: isDarkMode
+                                        ? Colors.grey[300]
+                                        : Colors.black),
+                              ),
+                              Text(
+                                'Color: ${item['color']}',
+                                style: TextStyle(
+                                    color: isDarkMode
+                                        ? Colors.grey[300]
+                                        : Colors.black),
+                              ),
+                              Text(
+                                'Storage: ${item['storage']}',
+                                style: TextStyle(
+                                    color: isDarkMode
+                                        ? Colors.grey[300]
+                                        : Colors.black),
+                              ),
+                              Text(
+                                'Quantity: ${item['quantity']}',
+                                style: TextStyle(
+                                    color: isDarkMode
+                                        ? Colors.grey[300]
+                                        : Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete,
+                              color: isDarkMode ? Colors.red[300] : Colors.red),
+                          onPressed: () {
+                            modelProvider.removeFromCart(item['modelId'],
+                                item['color'], item['storage']);
+                            setState(() {});
+                          },
+                        ),
                       ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        modelProvider.removeFromCart(
-                            item['modelId'], item['color'], item['storage']);
-                        setState(() {});
-                      },
                     ),
                   ),
                 ),
@@ -108,45 +147,45 @@ class BasketPageState extends State<BasketPage> {
                 (sum, item) => sum + item['price'] * item['quantity'],
               );
               return Container(
-                padding: const EdgeInsets.all(10.0),
-                decoration: const BoxDecoration(
-                  color: Colors.white38,
-                  boxShadow: [
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: isDarkMode ? Colors.grey[900] : Colors.white,
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.purple,
+                      color: Colors.grey,
                       blurRadius: 4.0,
                     ),
                   ],
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.0),
-                      topRight: Radius.circular(10.0),
-                      bottomLeft: Radius.circular(10.0),
-                      bottomRight: Radius.circular(10.0)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10.0)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'SUBTOTAL: ${total.toStringAsFixed(0)} Ks',
-                      style: const TextStyle(
-                          fontSize: 15,
+                      style: TextStyle(
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          fontFamily: "English"),
+                          fontFamily: "English",
+                          color: isDarkMode ? Colors.white : Colors.black),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                PaymentPage(basket: modelProvider.basket),
-                          ),
-                        );
-                      },
+                      onPressed: modelProvider.basket.isEmpty
+                          ? null
+                          : () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PaymentPage(basket: modelProvider.basket),
+                                ),
+                              );
+                            },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor:
+                            isDarkMode ? Colors.teal[300] : Colors.blue,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 15.0),
+                            horizontal: 20.0, vertical: 15.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24.0),
                         ),
@@ -154,10 +193,10 @@ class BasketPageState extends State<BasketPage> {
                       child: const Text(
                         'Buy Now!',
                         style: TextStyle(
-                            fontSize: 15.0,
+                            fontSize: 16.0,
                             fontFamily: "English",
                             fontWeight: FontWeight.bold,
-                            color: Colors.black),
+                            color: Colors.white),
                       ),
                     ),
                   ],
